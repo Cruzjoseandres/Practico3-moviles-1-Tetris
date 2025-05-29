@@ -7,7 +7,8 @@ import java.io.Serializable
 @Entity
 data class Puntaje(
     var nombre : String,
-    var puntaje : Int
+    var puntaje : Int,
+    var nivel : Int
 ): Serializable {
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0

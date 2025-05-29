@@ -9,4 +9,11 @@ object PuntajeRepository {
     suspend fun insertPuntaje(context: Context,puntaje: Puntaje): Long {
         return AppDatabase.getInstance(context).puntajeDao().insertPuntaje(puntaje)
     }
+
+    suspend fun getPuntajes(context: Context): List<Puntaje> {
+        return AppDatabase
+            .getInstance(context)
+            .puntajeDao()
+            .getAllPuntajes()
+    }
 }

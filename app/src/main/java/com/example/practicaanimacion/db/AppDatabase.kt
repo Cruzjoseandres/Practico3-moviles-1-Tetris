@@ -5,13 +5,13 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.practicaanimacion.db.dao.PuntajeDao
+import com.example.practicaanimacion.db.migration.Migration1to2
 import com.example.practicaanimacion.db.models.Puntaje
 
 
 @Database(
     entities = [Puntaje::class],
-    version = 1,
-    exportSchema = false
+    version = 2,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun puntajeDao(): PuntajeDao
@@ -22,6 +22,8 @@ abstract class AppDatabase : RoomDatabase() {
                 context,
                 AppDatabase::class.java,
                 "TetrisDB"
+            ).addMigrations(
+                Migration1to2()
             ).build()
         }
     }

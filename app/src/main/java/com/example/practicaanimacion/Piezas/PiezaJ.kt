@@ -5,7 +5,6 @@ import com.example.practicaanimacion.models.FabricarPiezas.obtenerColor
 import com.example.practicaanimacion.models.Pieza
 import com.example.practicaanimacion.models.Square
 import com.example.practicaanimacion.models.TableroJuego
-import com.example.practicaanimacion.models.TipoPieza
 
 class PiezaJ(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
     private var rotacionActual = 0
@@ -23,20 +22,20 @@ class PiezaJ(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
         val tempCuadrados = cuadrados.map { Square(it.x, it.y, it.color) }
         val posicionOriginal = Pair(posicionActual.first, posicionActual.second)
 
-        // Intentar rotación normal
+
         rotacionActual = nuevaRotacion
         actualizarPosicionesCuadrados()
 
-        // Intentar diferentes desplazamientos si la rotación normal no funciona
+
         if (!tableroJuego.puedeMoverPieza(this, 0, 0)) {
-            // Intentar con desplazamientos (wall kicks)
+
             val desplazamientos = listOf(
-                Pair(1, 0),   // Derecha
-                Pair(-1, 0),  // Izquierda
-                Pair(0, -1),  // Arriba
-                Pair(2, 0),   // 2 a la derecha
-                Pair(-2, 0),  // 2 a la izquierda
-                Pair(0, 2)    // 2 abajo (para giros cerca de la base)
+                Pair(1, 0),
+                Pair(-1, 0),
+                Pair(0, -1),
+                Pair(2, 0),
+                Pair(-2, 0),
+                Pair(0, 2)
             )
 
             var rotacionExitosa = false
@@ -52,7 +51,6 @@ class PiezaJ(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
                 }
             }
 
-            // Si ningún desplazamiento funciona, revertir la rotación
             if (!rotacionExitosa) {
                 cuadrados.clear()
                 cuadrados.addAll(tempCuadrados)
@@ -69,7 +67,7 @@ class PiezaJ(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
         val centroY = posicionActual.second
 
         when (rotacionActual) {
-            0 -> { // J hacia la derecha
+            0 -> {
                 cuadrados[0].x = (centroX - 1) * Square.ANCHO_CUADRADO
                 cuadrados[0].y = centroY * Square.ALTO_CUADRADO
                 cuadrados[1].x = centroX * Square.ANCHO_CUADRADO
@@ -79,7 +77,7 @@ class PiezaJ(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
                 cuadrados[3].x = (centroX + 1) * Square.ANCHO_CUADRADO
                 cuadrados[3].y = (centroY + 1) * Square.ALTO_CUADRADO
             }
-            1 -> { // J hacia abajo
+            1 -> {
                 cuadrados[0].x = centroX * Square.ANCHO_CUADRADO
                 cuadrados[0].y = (centroY - 1) * Square.ALTO_CUADRADO
                 cuadrados[1].x = centroX * Square.ANCHO_CUADRADO
@@ -89,7 +87,7 @@ class PiezaJ(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
                 cuadrados[3].x = (centroX - 1) * Square.ANCHO_CUADRADO
                 cuadrados[3].y = (centroY + 1) * Square.ALTO_CUADRADO
             }
-            2 -> { // J hacia la izquierda
+            2 -> {
                 cuadrados[0].x = (centroX - 1) * Square.ANCHO_CUADRADO
                 cuadrados[0].y = (centroY - 1) * Square.ALTO_CUADRADO
                 cuadrados[1].x = (centroX - 1) * Square.ANCHO_CUADRADO
@@ -99,7 +97,7 @@ class PiezaJ(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
                 cuadrados[3].x = (centroX + 1) * Square.ANCHO_CUADRADO
                 cuadrados[3].y = centroY * Square.ALTO_CUADRADO
             }
-            3 -> { // J hacia arriba
+            3 -> {
                 cuadrados[0].x = (centroX + 1) * Square.ANCHO_CUADRADO
                 cuadrados[0].y = (centroY - 1) * Square.ALTO_CUADRADO
                 cuadrados[1].x = centroX * Square.ANCHO_CUADRADO

@@ -5,9 +5,7 @@ import com.example.practicaanimacion.models.FabricarPiezas.obtenerColor
 import com.example.practicaanimacion.models.Pieza
 import com.example.practicaanimacion.models.Square
 import com.example.practicaanimacion.models.TableroJuego
-import com.example.practicaanimacion.models.TipoPieza
-import kotlin.collections.get
-import kotlin.times
+
 
 class PiezaZ(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
     private var rotacion = 0
@@ -25,23 +23,23 @@ class PiezaZ(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
         val tempCuadrados = cuadrados.map { Square(it.x, it.y, it.color) }
         val posicionOriginal = Pair(posicionActual.first, posicionActual.second)
 
-        // Intentar rotación normal
+
         rotacion = nuevaRotacion
         actualizarPosicionesCuadrados()
 
-        // Verificar si la rotación normal es posible
+
         if (!tableroJuego.puedeMoverPieza(this, 0, 0)) {
-            // Intentar con desplazamientos (wall kicks)
+
             val desplazamientos = listOf(
-                Pair(1, 0),   // Derecha
-                Pair(-1, 0),  // Izquierda
-                Pair(0, -1),  // Arriba
-                Pair(2, 0),   // 2 a la derecha
-                Pair(-2, 0),  // 2 a la izquierda
-                Pair(0, 1),   // 1 abajo
-                Pair(1, 1),   // Diagonal derecha abajo
-                Pair(-1, 1),  // Diagonal izquierda abajo
-                Pair(0, 2)    // 2 abajo
+                Pair(1, 0),
+                Pair(-1, 0),
+                Pair(0, -1),
+                Pair(2, 0),
+                Pair(-2, 0),
+                Pair(0, 1),
+                Pair(1, 1),
+                Pair(-1, 1),
+                Pair(0, 2)
             )
 
             var rotacionExitosa = false
@@ -57,7 +55,7 @@ class PiezaZ(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
                 }
             }
 
-            // Si ningún desplazamiento funciona, revertir la rotación
+
             if (!rotacionExitosa) {
                 cuadrados.clear()
                 cuadrados.addAll(tempCuadrados)
@@ -69,11 +67,13 @@ class PiezaZ(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
         notifyObservers()
     }
 
+
+
     override fun actualizarPosicionesCuadrados() {
         val centroX = posicionActual.first
         val centroY = posicionActual.second
 
-        if (rotacion == 0) { // Horizontal
+        if (rotacion == 0) {
             cuadrados[0].x = (centroX - 1) * Square.ANCHO_CUADRADO
             cuadrados[0].y = centroY * Square.ALTO_CUADRADO
             cuadrados[1].x = centroX * Square.ANCHO_CUADRADO
@@ -82,7 +82,7 @@ class PiezaZ(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
             cuadrados[2].y = (centroY + 1) * Square.ALTO_CUADRADO
             cuadrados[3].x = (centroX + 1) * Square.ANCHO_CUADRADO
             cuadrados[3].y = (centroY + 1) * Square.ALTO_CUADRADO
-        } else { // Vertical
+        } else {
             cuadrados[0].x = (centroX + 1) * Square.ANCHO_CUADRADO
             cuadrados[0].y = centroY * Square.ALTO_CUADRADO
             cuadrados[1].x = (centroX + 1) * Square.ANCHO_CUADRADO

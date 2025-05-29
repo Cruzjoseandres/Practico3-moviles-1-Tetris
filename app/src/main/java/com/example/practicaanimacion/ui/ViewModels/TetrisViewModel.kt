@@ -15,42 +15,46 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import java.util.Date
+
 
 class TetrisViewModel : ViewModel() {
-    // Estado observable del juego
+
     private val _estadoJuego = MutableLiveData<EstadoJuego>()
     val estadoJuego: LiveData<EstadoJuego> = _estadoJuego
 
-    // Puntuación
+
     private val _puntaje = MutableLiveData(0)
     val puntaje: LiveData<Int> = _puntaje
 
-    // Eventos de una sola vez (para mostrar diálogos, etc)
+
     private val _eventos = MutableSharedFlow<EventoJuego>()
     val eventos = _eventos.asSharedFlow()
 
-    // Instancia del tablero
     private val tableroJuego = TableroJuego()
 
-    // Variable para controlar el bucle del juego
+
     private var juegoActivo = false
 
-    // Puntuación final guardada
+
     private var puntajeFinal = 0
+    private var nivelFinal = 1
+
+
+    private val _nivel = MutableLiveData(1)
+    val nivel: LiveData<Int> = _nivel
+
 
     init {
         inicializarObservadores()
     }
 
     private fun inicializarObservadores() {
-        // Añadir un observador al tablero para actualizar la puntuación y el estado
         tableroJuego.addObserver(object : Observer {
             override fun update() {
-                // Actualizar puntuación
+
                 actualizarPuntaje(tableroJuego.obtenerPuntaje())
 
-                // Actualizar estado del juego
+
                 _estadoJuego.postValue(
                     EstadoJuego(
                         tableroActual = obtenerEstadoTablero(),
@@ -68,22 +72,16 @@ class TetrisViewModel : ViewModel() {
         return tableroJuego.obtenerTablero()
     }
 
-    private fun obtenerNivelActual(): Int {
-        return tableroJuego.obtenerNivel()
-    }
-
     fun iniciarJuego() {
         viewModelScope.launch {
             juegoActivo = true
 
-            // Generar la primera pieza
             val inicioExitoso = tableroJuego.generarNuevaPieza()
             if (!inicioExitoso) {
                 finalizarJuego()
                 return@launch
             }
 
-            // Iniciar bucle de juego
             iniciarBucleJuego()
         }
     }
@@ -103,7 +101,6 @@ class TetrisViewModel : ViewModel() {
     fun bajar() = viewModelScope.launch {
         if (!juegoActivo) return@launch
 
-        // Implementar bajarRápido como función del ViewModel
         var movido: Boolean
         do {
             movido = tableroJuego.moverPiezaAbajo()
@@ -127,19 +124,24 @@ class TetrisViewModel : ViewModel() {
     private suspend fun finalizarJuego() {
         juegoActivo = false
         puntajeFinal = tableroJuego.obtenerPuntaje()
+        nivelFinal = tableroJuego.obtenerNivel()
         tableroJuego.desactivarJuego()
         _eventos.emit(EventoJuego.FinJuego(puntajeFinal))
     }
 
     fun actualizarPuntaje(nuevoPuntaje: Int) {
         _puntaje.value = nuevoPuntaje
+        val nuevoNivel = (nuevoPuntaje / 5000) + 1
+        _nivel.value = nuevoNivel
+        tableroJuego.establecerNivel(nuevoNivel)
     }
 
     fun guardarPuntaje(context: Context, nombre: String) {
         viewModelScope.launch {
             val puntaje = Puntaje(
                 nombre,
-                puntajeFinal
+                puntajeFinal,
+                nivelFinal
             )
             PuntajeRepository.insertPuntaje(context, puntaje)
         }
@@ -154,4 +156,5 @@ class TetrisViewModel : ViewModel() {
         super.onCleared()
         detenerJuego()
     }
+
 }

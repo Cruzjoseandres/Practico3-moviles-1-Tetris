@@ -9,7 +9,7 @@ import com.example.practicaanimacion.db.models.Puntaje
 
 @Dao
 interface PuntajeDao {
-    @Query ("SELECT * FROM puntaje")
+    @Query("SELECT * FROM puntaje ORDER BY puntaje DESC LIMIT 10")
     suspend fun getAllPuntajes(): List<Puntaje>
 
     @Insert

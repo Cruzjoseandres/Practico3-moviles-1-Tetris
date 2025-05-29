@@ -35,7 +35,7 @@ abstract class Pieza(val tableroJuego: TableroJuego) : Observable {
             notifyObservers()
             return true
         }
-        return false // No se puede mover más abajo
+        return false
     }
 
     private fun puedeMover(dx: Int, dy: Int): Boolean {
@@ -58,7 +58,4 @@ abstract class Pieza(val tableroJuego: TableroJuego) : Observable {
         observadores.forEach { it.update() }
     }
 
-    protected fun notificarObservadores() {
-        notifyObservers()
-    }
 }

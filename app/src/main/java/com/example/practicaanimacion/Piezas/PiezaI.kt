@@ -4,7 +4,6 @@ import com.example.practicaanimacion.models.FabricarPiezas.obtenerColor
 import com.example.practicaanimacion.models.Pieza
 import com.example.practicaanimacion.models.Square
 import com.example.practicaanimacion.models.TableroJuego
-import com.example.practicaanimacion.models.TipoPieza
 
 class PiezaI(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
     private var rotacion = 0
@@ -38,7 +37,7 @@ class PiezaI(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
         val centroX = posicionActual.first
         val centroY = posicionActual.second
 
-        if (rotacion == 0) { // Horizontal
+        if (rotacion == 0) {
             cuadrados[0].x = (centroX - 1) * Square.ANCHO_CUADRADO
             cuadrados[0].y = centroY * Square.ALTO_CUADRADO
             cuadrados[1].x = centroX * Square.ANCHO_CUADRADO
@@ -47,7 +46,7 @@ class PiezaI(tableroJuego: TableroJuego) : Pieza(tableroJuego) {
             cuadrados[2].y = centroY * Square.ALTO_CUADRADO
             cuadrados[3].x = (centroX + 2) * Square.ANCHO_CUADRADO
             cuadrados[3].y = centroY * Square.ALTO_CUADRADO
-        } else { // Vertical
+        } else {
             cuadrados[0].x = centroX * Square.ANCHO_CUADRADO
             cuadrados[0].y = (centroY - 1) * Square.ALTO_CUADRADO
             cuadrados[1].x = centroX * Square.ANCHO_CUADRADO

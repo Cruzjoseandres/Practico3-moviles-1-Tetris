@@ -53,6 +53,8 @@ dependencies {
 
     //room  implementation("androidx.room:room-runtime:$room_version")
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
     //ksp("androidx.room:room-compiler:2.5.0")
     ksp(libs.androidx.room.compiler)
     //para view model y livedata val lifecycle_version = "2.9.0"

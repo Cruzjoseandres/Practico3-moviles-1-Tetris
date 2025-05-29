@@ -1,6 +1,8 @@
 package com.example.practicaanimacion.ui.activities
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.MotionEvent
 import android.widget.EditText
@@ -17,7 +19,6 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: TetrisViewModel by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -27,22 +28,27 @@ class MainActivity : AppCompatActivity() {
         setupEventListeners()
         setupObservers()
 
-        // Iniciar el juego automáticamente
         viewModel.iniciarJuego()
     }
 
     private fun setupObservers() {
-        // Observar estado del juego
+
         viewModel.estadoJuego.observe(this) { estado ->
             binding.tableroTetris.actualizarEstado(estado)
         }
 
-        // Observar puntuación
+
         viewModel.puntaje.observe(this) { puntaje ->
             binding.txtPuntaje.text = "Puntaje: $puntaje"
+
         }
 
-        // Observar eventos (fin de juego, etc)
+        viewModel.nivel.observe(this) { nivel ->
+            binding.txtlevel.text = "Nivel: $nivel"
+
+        }
+
+
         lifecycleScope.launch {
             viewModel.eventos.collect { evento ->
                 when (evento) {
@@ -54,26 +60,32 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupEventListeners() {
-        // Configurar botones
         binding.btnRotar.setOnClickListener { viewModel.rotar() }
         binding.btnBajar.setOnClickListener { viewModel.bajar() }
 
-        // Configurar gestos en el tablero
         binding.tableroTetris.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    val x = event.x
-                    val mitadPantalla = binding.tableroTetris.width / 2
-
-                    if (x < mitadPantalla) viewModel.moverIzquierda()
-                    else viewModel.moverDerecha()
-
-                    true
-                }
-                else -> false
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                val mitad = binding.tableroTetris.width / 2
+                if (event.x < mitad) viewModel.moverIzquierda()
+                if (event.x >= mitad) viewModel.moverDerecha()
+                true
             }
+            else false
         }
     }
+
+    override fun onBackPressed() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Salir")
+            .setMessage("¿Estás seguro de que quieres salir del juego?")
+            .setPositiveButton("Sí") { _, _ ->
+                super.onBackPressed()
+            }
+            .setNegativeButton("No", null)
+            .show()
+
+    }
+
 
     private fun mostrarDialogoFinJuego(puntajeFinal: Int) {
         val nombreEditText = EditText(this)
@@ -86,6 +98,8 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton("Guardar") { _, _ ->
                 val nombre = nombreEditText.text.toString().ifEmpty { "Anónimo" }
                 viewModel.guardarPuntaje(this, nombre)
+                val intent = PuntajeList.newIntent(this)
+                startActivity(intent)
             }
             .setNegativeButton("Cancelar", null)
             .setCancelable(false)
@@ -94,7 +108,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Detener el juego cuando se destruye la actividad
         viewModel.detenerJuego()
+    }
+
+
+    companion object {
+        fun newIntent(context: Context): Intent {
+            return Intent(context, MainActivity::class.java)
+        }
+
+
     }
 }
