@@ -16,12 +16,6 @@ Un juego tipo Tetris desarrollado en Android Studio utilizando Kotlin, arquitect
 
 ---
 
-## 📱 Capturas de pantalla
-
-> *(Agrega aquí imágenes del juego en acción, menú principal y lista de puntajes)*
-
----
-
 ## 🛠️ Tecnologías utilizadas
 
 - **Kotlin**
@@ -33,9 +27,3 @@ Un juego tipo Tetris desarrollado en Android Studio utilizando Kotlin, arquitect
 
 ---
 
-## 🚀 Cómo ejecutar el proyecto
-
-1. Clona este repositorio:
-   ```bash
-   git clone https://github.com/tu-usuario/tetris-animado.git
-   ```
