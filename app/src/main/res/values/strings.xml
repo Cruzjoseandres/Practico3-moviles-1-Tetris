@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PracticaAnimacion</string>
+    <string name="app_name">TetrisJACP</string>
     <string name="title_activity_jugar">JugarActivity</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>

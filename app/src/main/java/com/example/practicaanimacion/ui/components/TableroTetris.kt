@@ -28,6 +28,13 @@ class TableroTetris(context: Context?, attrs: AttributeSet?) : View(context, att
         strokeWidth = 1f
     }
 
+    private val pincelFantasma = Paint().apply {
+        isAntiAlias = true
+        style = Paint.Style.STROKE
+        strokeWidth = 5f
+        color = Color.argb(128, 255, 255, 255)
+    }
+
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -42,7 +49,16 @@ class TableroTetris(context: Context?, attrs: AttributeSet?) : View(context, att
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        canvas.drawColor(Color.LTGRAY)
+        val scaleX = width.toFloat() / (anchoTablero * tamanioCelda)
+        val scaleY = height.toFloat() / (altoTablero * tamanioCelda)
+        val scale = minOf(scaleX, scaleY)
+
+        val boardWidth = anchoTablero * tamanioCelda * scale
+        val boardHeight = altoTablero * tamanioCelda * scale
+
+        canvas.save()
+        canvas.translate((width - boardWidth) / 2f, (height - boardHeight) / 2f)
+        canvas.scale(scale, scale)
 
         dibujarCuadricula(canvas)
 
@@ -50,10 +66,24 @@ class TableroTetris(context: Context?, attrs: AttributeSet?) : View(context, att
 
             dibujarTablero(canvas, estado.tableroActual)
 
+            estado.sombraPieza?.forEach { square ->
+                // Guardar el color original para configurarlo semitransparente
+                pincelFantasma.color = Color.argb(80, Color.red(square.color), Color.green(square.color), Color.blue(square.color))
+                // Dibujar el interior
+                pincelFantasma.style = Paint.Style.FILL
+                canvas.drawRect(square.x, square.y, square.x + Square.ANCHO_CUADRADO, square.y + Square.ALTO_CUADRADO, pincelFantasma)
+                // Dibujar el borde
+                pincelFantasma.style = Paint.Style.STROKE
+                pincelFantasma.color = Color.argb(180, Color.red(square.color), Color.green(square.color), Color.blue(square.color))
+                canvas.drawRect(square.x, square.y, square.x + Square.ANCHO_CUADRADO, square.y + Square.ALTO_CUADRADO, pincelFantasma)
+            }
+
             estado.piezaActual?.let { pieza ->
                 pieza.dibujar(canvas, pincel)
             }
         }
+        
+        canvas.restore()
     }
 
     private fun dibujarTablero(canvas: Canvas, tableroActual: Array<Array<Square?>>) {

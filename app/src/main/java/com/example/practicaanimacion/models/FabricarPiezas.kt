@@ -13,7 +13,7 @@ import com.example.practicaanimacion.Piezas.PiezaZ
 object FabricarPiezas {
 
     fun crearPiezaAleatoria(tableroJuego: TableroJuego): Pieza {
-        return when ((0..6).random()) {
+        val pieza = when ((0..6).random()) {
             0 -> PiezaI(tableroJuego)
             1 -> PiezaJ(tableroJuego)
             2 -> PiezaL(tableroJuego)
@@ -22,6 +22,13 @@ object FabricarPiezas {
             5 -> PiezaT(tableroJuego)
             else -> PiezaZ(tableroJuego)
         }
+        
+        val rotaciones = (0..3).random()
+        repeat(rotaciones) {
+            pieza.rotar()
+        }
+        
+        return pieza
     }
 
     fun obtenerColor(): Int {

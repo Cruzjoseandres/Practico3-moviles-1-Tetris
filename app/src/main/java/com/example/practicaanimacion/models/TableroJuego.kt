@@ -8,6 +8,7 @@ class TableroJuego(private val ancho: Int = 10, private val alto: Int = 20) : Ob
     private val tablero = Array(alto) { Array(ancho) { null as Square? } }
     private val observadores = mutableListOf<Observer>()
     private var piezaActual: Pieza? = null
+    private var siguientePieza: Pieza? = FabricarPiezas.crearPiezaAleatoria(this)
     private var puntaje = 0
     private var nivel = 1
     private var velocidadCaida = 1000L
@@ -15,7 +16,8 @@ class TableroJuego(private val ancho: Int = 10, private val alto: Int = 20) : Ob
 
 
     fun generarNuevaPieza(): Boolean {
-        piezaActual = FabricarPiezas.crearPiezaAleatoria(this)
+        piezaActual = siguientePieza ?: FabricarPiezas.crearPiezaAleatoria(this)
+        siguientePieza = FabricarPiezas.crearPiezaAleatoria(this)
         return !verificarColision(piezaActual!!, 0, 0)
     }
 
@@ -167,6 +169,8 @@ class TableroJuego(private val ancho: Int = 10, private val alto: Int = 20) : Ob
 
     fun obtenerPiezaActual(): Pieza? = piezaActual
 
+    fun obtenerSiguientePieza(): Pieza? = siguientePieza
+
     fun obtenerPuntaje(): Int = puntaje
 
     fun obtenerNivel(): Int = nivel
@@ -187,5 +191,35 @@ class TableroJuego(private val ancho: Int = 10, private val alto: Int = 20) : Ob
 
     fun establecerNivel(nivel: Int) {
         this.nivel = nivel
+    }
+
+    fun reiniciar() {
+        for (y in 0 until alto) {
+            for (x in 0 until ancho) {
+                tablero[y][x] = null
+            }
+        }
+        puntaje = 0
+        nivel = 1
+        velocidadCaida = 1000L
+        juegoActivo = true
+        piezaActual = null
+        siguientePieza = FabricarPiezas.crearPiezaAleatoria(this)
+        notifyObservers()
+    }
+
+    fun obtenerSombraPieza(): List<Square>? {
+        val pieza = piezaActual ?: return null
+        var dy = 0
+        while (puedeMoverPieza(pieza, 0, dy + 1)) {
+            dy++
+        }
+        return pieza.obtenerCuadrados().map { square ->
+            Square(
+                square.x,
+                square.y + dy * Square.ALTO_CUADRADO,
+                square.color
+            )
+        }
     }
 }

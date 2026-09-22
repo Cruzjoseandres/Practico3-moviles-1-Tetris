@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tetris Web - Edición Arcade Neón</title>
+    <meta name="description" content="Juego clásico de Tetris en versión web optimizada para Cloudflare, con persistencia de puntuaciones en LocalStorage y estética Cyberpunk Neón.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- PANTALLA 1: MENÚ PRINCIPAL -->
+        <main id="pantallaMenu" class="pantalla">
+            <div class="logo-container">
+                <h1 class="logo-tetris">TETRIS</h1>
+                <p class="logo-subtitulo">Arcade Mobile Edition</p>
+            </div>
+
+            <div class="menu-record-box">
+                <span id="txtRecord">Récord: 0</span>
+            </div>
+
+            <div class="menu-botones">
+                <button id="btnIniciarJuego" class="btn-gradiente">
+                    <span class="btn-text">Jugar Ahora</span>
+                </button>
+                <button id="btnScore" class="btn-gradiente">
+                    <span class="btn-text">Ver Puntuación</span>
+                </button>
+            </div>
+        </main>
+
+        <!-- PANTALLA 2: JUEGO ACTIVO (MOBILE FIRST) -->
+        <section id="pantallaJuego" class="pantalla oculto" aria-label="Pantalla de juego Tetris">
+            <header class="game-header">
+                <button id="btnVolverMenu" class="btn-icono" title="Volver al Menú" aria-label="Volver al Menú">
+                    <span>🏠</span>
+                </button>
+                <div class="controles-superiores">
+                    <button id="btnSonido" class="btn-icono" title="Sonido" aria-label="Alternar Sonido">
+                        <span>🔊</span>
+                    </button>
+                    <button id="btnPausa" class="btn-icono" title="Pausar" aria-label="Pausar o Reanudar">
+                        <span class="icon">⏸</span>
+                    </button>
+                    <button id="btnReiniciar" class="btn-icono" title="Reiniciar Partida" aria-label="Reiniciar Partida">
+                        <span>🔄</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Contenedor del tablero (10x20 celdas) con interacción táctil directa -->
+            <div class="tablero-container" id="tableroTouchZone">
+                <div class="tablero-wrapper">
+                    <canvas id="tableroCanvas"></canvas>
+                    <div class="touch-hint izq">◄ Toca</div>
+                    <div class="touch-hint der">Toca ►</div>
+                    <div class="drag-hint-down">▼ Desliza hacia abajo ▼</div>
+                </div>
+            </div>
+
+            <!-- Panel de Información: Puntaje, Siguiente y Nivel -->
+            <div class="info-panel">
+                <div class="info-item">
+                    <span class="info-label">Puntaje</span>
+                    <span id="txtPuntaje" class="info-valor-puntaje">0</span>
+                </div>
+
+                <div class="siguiente-box">
+                    <span class="info-label">Siguiente</span>
+                    <canvas id="siguientePiezaCanvas"></canvas>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Nivel</span>
+                    <span id="txtNivel" class="info-valor-nivel">1</span>
+                </div>
+            </div>
+
+            <!-- Controles inferiores ergonómicos para pulgares -->
+            <div class="controles-inferiores">
+                <div class="fila-botones-principales">
+                    <button id="btnRotar" class="btn-gradiente btn-rotar" aria-label="Rotar pieza">
+                        <span>🔄 Rotar</span>
+                    </button>
+                    <button id="btnBajar" class="btn-gradiente btn-bajar" aria-label="Caída rápida instantánea">
+                        <span>⚡ Bajar</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANTALLA 3: LISTA DE PUNTUACIONES -->
+        <section id="pantallaPuntuaciones" class="pantalla oculto" aria-label="Pantalla de mejores puntuaciones">
+            <div class="score-header">
+                <h2 class="score-titulo">Top 10 Récords</h2>
+            </div>
+
+            <div class="score-tabla-container">
+                <table class="score-tabla">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nombre</th>
+                            <th>Puntos</th>
+                            <th>Nivel</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaPuntuacionesBody">
+                        <!-- Filas dinámicas generadas con JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="score-acciones">
+                <button id="btnVolverDesdeScore" class="btn-secundario">Menú</button>
+                <button id="btnLimpiarPuntajes" class="btn-peligro">Borrar</button>
+                <button id="btnJugarDesdeScore" class="btn-gradiente">Jugar</button>
+            </div>
+        </section>
+
+        <!-- MODAL: FIN DEL JUEGO -->
+        <div id="modalGameOver" class="modal-overlay oculto" role="dialog" aria-modal="true" aria-labelledby="modalTituloGameOver">
+            <div class="modal-card">
+                <h3 id="modalTituloGameOver" class="modal-titulo">¡Juego Terminado!</h3>
+                <p id="txtPuntajeFinal" class="modal-mensaje">Tu puntaje final es: 0</p>
+                <input type="text" id="inputNombreJugador" class="modal-input" placeholder="Ingresa tu nombre" maxlength="15" autocomplete="off">
+                <div class="modal-botones">
+                    <button id="btnGuardarPuntaje" class="btn-gradiente">Guardar Puntuación</button>
+                    <button id="btnCancelarGameOver" class="btn-secundario">Volver al Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: PAUSA -->
+        <div id="modalPausa" class="modal-overlay oculto" role="dialog" aria-modal="true" aria-labelledby="modalTituloPausa">
+            <div class="modal-card">
+                <h3 id="modalTituloPausa" class="modal-titulo">Juego en Pausa</h3>
+                <p class="modal-mensaje">¿Qué deseas hacer?</p>
+                <div class="modal-botones">
+                    <button id="btnReanudarPausa" class="btn-gradiente">Continuar Jugando</button>
+                    <button id="btnReiniciarPausa" class="btn-secundario">Reiniciar Partida</button>
+                    <button id="btnMenuDesdePausa" class="btn-peligro">Salir al Menú</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script principal con ES Modules -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

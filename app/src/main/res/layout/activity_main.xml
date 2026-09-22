@@ -5,52 +5,126 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg_dark"
     tools:context=".ui.activities.MainActivity">
 
-
-    <com.example.practicaanimacion.ui.components.TableroTetris
-        android:id="@+id/tableroTetris"
+    <FrameLayout
+        android:id="@+id/tableroContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/txtPuntaje"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:background="@drawable/bg_game_board"
+        android:padding="2dp"
+        app:layout_constraintDimensionRatio="1:2"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutInfo"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/txtPuntaje"
-        android:layout_width="wrap_content"
+        <com.example.practicaanimacion.ui.components.TableroTetris
+            android:id="@+id/tableroTetris"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent" />
+
+    </FrameLayout>
+
+    <ImageButton
+        android:id="@+id/btnPausa"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/bg_gradient_button"
+        android:src="@android:drawable/ic_media_pause"
+        android:tint="@color/white"
+        app:layout_constraintStart_toStartOf="@+id/tableroContainer"
+        app:layout_constraintTop_toTopOf="@+id/tableroContainer" />
+
+    <ImageButton
+        android:id="@+id/btnReiniciar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/bg_gradient_button"
+        android:src="@android:drawable/ic_popup_sync"
+        android:tint="@color/white"
+        app:layout_constraintEnd_toEndOf="@+id/tableroContainer"
+        app:layout_constraintTop_toTopOf="@+id/tableroContainer" />
+
+    <LinearLayout
+        android:id="@+id/linearLayoutInfo"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="Puntaje: 0"
-        android:textSize="24sp"
+        android:orientation="horizontal"
+        android:paddingVertical="4dp"
+        android:paddingHorizontal="16dp"
+        android:gravity="center_vertical"
         app:layout_constraintBottom_toTopOf="@+id/btnRotar"
-        app:layout_constraintHorizontal_bias="0.301"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent">
 
+        <TextView
+            android:id="@+id/txtPuntaje"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Puntaje: 0"
+            android:textColor="@color/neon_cyan"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center" />
 
-    <TextView
-        android:id="@+id/txtlevel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="Nivel: 0"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/btnRotar"
-        app:layout_constraintHorizontal_bias="0.642"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Siguiente"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <com.example.practicaanimacion.ui.components.SiguientePiezaView
+                android:id="@+id/vistaSiguientePieza"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/txtlevel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Nivel: 0"
+            android:textColor="@color/neon_purple"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/btnRotar"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="55dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_gradient_button"
         android:text="Rotar"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnBajar"
         app:layout_constraintStart_toStartOf="parent" />
@@ -58,11 +132,15 @@
     <Button
         android:id="@+id/btnBajar"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="55dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_gradient_button"
         android:text="Bajar"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnRotar" />
