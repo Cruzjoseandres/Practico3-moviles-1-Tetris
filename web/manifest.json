@@ -1,7 +1,7 @@
 {
-  "name": "Tetris Arcade - Mobile Edition",
-  "short_name": "Tetris",
-  "description": "Juego clásico de Tetris en edición arcade neón con controles táctiles optimizados y guardado de puntuaciones.",
+  "name": "TetrisJACP",
+  "short_name": "TetrisJACP",
+  "description": "Juego clásico de Tetris Arcade optimizado para dispositivos móviles y pantalla completa.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

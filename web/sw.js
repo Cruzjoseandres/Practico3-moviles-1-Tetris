@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tetris-pwa-v1';
+const CACHE_NAME = 'tetrisjacp-v2';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -21,7 +21,13 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS_TO_CACHE);
+            return Promise.all(
+                ASSETS_TO_CACHE.map((url) => {
+                    return cache.add(url).catch((err) => {
+                        console.warn(`No se pudo cachear ${url} durante la instalación:`, err);
+                    });
+                })
+            );
         }).then(() => self.skipWaiting())
     );
 });
@@ -41,32 +47,34 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    // Solo cacheamos solicitudes GET
     if (event.request.method !== 'GET') return;
+    if (!event.request.url.startsWith('http')) return;
 
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {
-                // Actualizar en segundo plano si hay red
+                // Actualizar en segundo plano si hay red disponible
                 fetch(event.request).then((networkResponse) => {
                     if (networkResponse && networkResponse.status === 200) {
-                        caches.open(CACHE_NAME).then((cache) => {
-                            cache.put(event.request, networkResponse);
-                        });
+                        const clone = networkResponse.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
                     }
                 }).catch(() => {});
                 return cachedResponse;
             }
 
             return fetch(event.request).then((networkResponse) => {
-                if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-                    return networkResponse;
+                if (networkResponse && networkResponse.status === 200) {
+                    const clone = networkResponse.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
                 }
-                const responseToCache = networkResponse.clone();
-                caches.open(CACHE_NAME).then((cache) => {
-                    cache.put(event.request, responseToCache);
-                });
                 return networkResponse;
+            }).catch(() => {
+                // Fallback seguro contra ERR_FAILED si falla la red en navegación
+                if (event.request.mode === 'navigate') {
+                    return caches.match('./index.html') || caches.match('./');
+                }
+                return new Response('Sin conexión', { status: 503, statusText: 'Offline' });
             });
         })
     );
