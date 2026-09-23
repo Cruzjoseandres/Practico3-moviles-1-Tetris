@@ -2,7 +2,7 @@ import { SoundEffects } from '../audio/SoundEffects.js';
 
 /**
  * Gestor de eventos de entrada (Teclado, Táctil, Arrastre)
- * Clics directos en pantalla para izquierda/derecha y arrastre hacia abajo para bajar
+ * Con prevención estricta de doble toque / zoom para iOS Safari y WebKit
  */
 export class Controller {
     constructor(gameEngine) {
@@ -16,9 +16,40 @@ export class Controller {
         this.haArrastrado = false;
         this.arrastreThreshold = 22; // Pixeles para activar un paso hacia abajo
 
+        this.initAntiZoomIOS();
         this.initTeclado();
         this.initTouchYArrastre();
         this.initBotones();
+    }
+
+    /**
+     * Bloquea completamente el zoom por doble toque y gestos de pellizco en iOS Safari
+     */
+    initAntiZoomIOS() {
+        // 1. Prevenir zoom por doble toque en iOS
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 320) {
+                // Solo permitimos comportamiento por defecto en inputs de texto
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                }
+            }
+            lastTouchEnd = now;
+        }, { passive: false });
+
+        // 2. Prevenir zoom con dos o más dedos (pinch-to-zoom)
+        document.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // 3. Prevenir gestos nativos de Safari
+        document.addEventListener('gesturestart', (e) => e.preventDefault());
+        document.addEventListener('gesturechange', (e) => e.preventDefault());
+        document.addEventListener('gestureend', (e) => e.preventDefault());
     }
 
     initTeclado() {
@@ -77,7 +108,6 @@ export class Controller {
         const canvas = document.getElementById('tableroCanvas');
         if (!contenedor || !canvas) return;
 
-        // Soporte universal: Pointer Events (cubre Touch en móviles y Ratón en PC)
         contenedor.addEventListener('pointerdown', (e) => {
             if (this.engine.estaPausado || !this.engine.juegoActivo) return;
 
@@ -89,7 +119,7 @@ export class Controller {
 
         contenedor.addEventListener('pointermove', (e) => {
             if (this.engine.estaPausado || !this.engine.juegoActivo) return;
-            if (e.buttons !== 1 && e.pointerType === 'mouse') return; // En ratón solo si está presionado
+            if (e.buttons !== 1 && e.pointerType === 'mouse') return;
 
             const deltaYDesdeUltimo = e.clientY - this.lastDragY;
             const deltaTotalY = e.clientY - this.startY;
@@ -98,7 +128,6 @@ export class Controller {
             if (deltaTotalY > 12) {
                 this.haArrastrado = true;
 
-                // Cada cierto número de píxeles arrastrados hacia abajo, baja un bloque
                 if (deltaYDesdeUltimo >= this.arrastreThreshold) {
                     if (this.engine.moverAbajo()) {
                         SoundEffects.playMove();
@@ -111,10 +140,10 @@ export class Controller {
         contenedor.addEventListener('pointerup', (e) => {
             if (this.engine.estaPausado || !this.engine.juegoActivo) return;
 
-            // Si fue un toque o clic limpio (sin arrastre vertical)
             const deltaX = Math.abs(e.clientX - this.startX);
             const deltaY = Math.abs(e.clientY - this.startY);
 
+            // Toque limpio (sin arrastre vertical)
             if (!this.haArrastrado && deltaY < 15 && deltaX < 25) {
                 const rect = canvas.getBoundingClientRect();
                 const clickX = e.clientX - rect.left;
@@ -133,45 +162,59 @@ export class Controller {
         });
     }
 
-    initBotones() {
-        // Botón Rotar
-        const btnRotar = document.getElementById('btnRotar');
-        if (btnRotar) {
-            btnRotar.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (this.engine.rotar()) {
-                    SoundEffects.playRotate();
-                }
-            });
-        }
+    /**
+     * Vincula botones táctiles con respuesta inmediata en pointerdown
+     * para eliminar cualquier retardo de 300ms y evitar zoom en iOS
+     */
+    _vincularBotonRapido(boton, accion) {
+        if (!boton) return;
 
-        // Botón Bajar (Hard Drop instantáneo)
+        let ejecutado = false;
+
+        boton.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            ejecutado = true;
+            accion();
+        });
+
+        boton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!ejecutado) {
+                accion();
+            }
+            ejecutado = false;
+        });
+    }
+
+    initBotones() {
+        // Botón Rotar rápido
+        const btnRotar = document.getElementById('btnRotar');
+        this._vincularBotonRapido(btnRotar, () => {
+            if (this.engine.rotar()) {
+                SoundEffects.playRotate();
+            }
+        });
+
+        // Botón Bajar rápido (Hard Drop)
         const btnBajar = document.getElementById('btnBajar');
-        if (btnBajar) {
-            btnBajar.addEventListener('click', (e) => {
-                e.stopPropagation();
-                SoundEffects.playDrop();
-                this.engine.bajarHardDrop();
-            });
-        }
+        this._vincularBotonRapido(btnBajar, () => {
+            SoundEffects.playDrop();
+            this.engine.bajarHardDrop();
+        });
 
         // Botón Pausa
         const btnPausa = document.getElementById('btnPausa');
-        if (btnPausa) {
-            btnPausa.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.engine.alternarPausa();
-            });
-        }
+        this._vincularBotonRapido(btnPausa, () => {
+            this.engine.alternarPausa();
+        });
 
         // Botón Reiniciar
         const btnReiniciar = document.getElementById('btnReiniciar');
-        if (btnReiniciar) {
-            btnReiniciar.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.engine.reiniciar();
-            });
-        }
+        this._vincularBotonRapido(btnReiniciar, () => {
+            this.engine.reiniciar();
+        });
 
         // Botón Sonido
         const btnSonido = document.getElementById('btnSonido');
@@ -182,8 +225,7 @@ export class Controller {
             };
             actualizarIconoSonido();
 
-            btnSonido.addEventListener('click', (e) => {
-                e.stopPropagation();
+            this._vincularBotonRapido(btnSonido, () => {
                 SoundEffects.alternarSonido();
                 actualizarIconoSonido();
             });

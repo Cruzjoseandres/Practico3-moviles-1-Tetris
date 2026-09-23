@@ -12,6 +12,7 @@ class TetrisApp {
         this.timerCaida = null;
         this.puntajeFinal = 0;
         this.nivelFinal = 1;
+        this.deferredPrompt = null;
 
         // Elementos del DOM
         this.pantallaMenu = document.getElementById('pantallaMenu');
@@ -35,6 +36,13 @@ class TetrisApp {
         this.btnReiniciarPausa = document.getElementById('btnReiniciarPausa');
         this.btnMenuDesdePausa = document.getElementById('btnMenuDesdePausa');
 
+        // Modal PWA
+        this.modalPWA = document.getElementById('modalPWA');
+        this.pwaInstrucciones = document.getElementById('pwaInstrucciones');
+        this.btnAccionInstalarPWA = document.getElementById('btnAccionInstalarPWA');
+        this.btnCerrarModalPWA = document.getElementById('btnCerrarModalPWA');
+        this.btnInstalarApp = document.getElementById('btnInstalarApp');
+
         // Tabla de puntuaciones
         this.tablaPuntuacionesBody = document.getElementById('tablaPuntuacionesBody');
         this.btnLimpiarPuntajes = document.getElementById('btnLimpiarPuntajes');
@@ -44,12 +52,13 @@ class TetrisApp {
         const canvasSiguiente = document.getElementById('siguientePiezaCanvas');
         this.renderer = new Renderer(canvasTablero, canvasSiguiente);
 
-        // Inicializar Controlador de entradas
+        // Inicializar Controlador de entradas (con soporte anti-zoom para iOS)
         this.controller = new Controller(this);
 
         this.initEventosUI();
         this.initObservadoresTablero();
         this.actualizarHUDRecord();
+        this.initPWA();
     }
 
     initEventosUI() {
@@ -129,11 +138,75 @@ class TetrisApp {
             this.detenerJuego();
             this.irAPantalla('menu');
         });
+
+        // Modal PWA
+        this.btnCerrarModalPWA?.addEventListener('click', () => {
+            this.modalPWA.classList.add('oculto');
+        });
+    }
+
+    initPWA() {
+        // Registrar Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch((err) => {
+                    console.log('Error registrando Service Worker:', err);
+                });
+            });
+        }
+
+        // Capturar evento de instalación en Android / Chrome
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            this.deferredPrompt = e;
+        });
+
+        // Evento botón instalar PWA
+        this.btnInstalarApp?.addEventListener('click', () => {
+            const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const esStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+            if (esStandalone) {
+                alert('¡Ya tienes la app instalada en tu dispositivo!');
+                return;
+            }
+
+            if (this.deferredPrompt) {
+                // Instalación directa de Chrome/Android
+                this.deferredPrompt.prompt();
+                this.deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('El usuario aceptó la instalación');
+                    }
+                    this.deferredPrompt = null;
+                });
+            } else if (esIOS) {
+                // Guía específica para iPhone / iPad en Safari
+                this.pwaInstrucciones.innerHTML = `
+                    <p style="margin-bottom: 8px; font-weight: bold; color: var(--neon-cyan);">Cómo instalar en tu iPhone / iPad:</p>
+                    <ol>
+                        <li>Toca el botón <strong>Compartir</strong> <span style="font-size: 1.2rem;">⎋</span> (el icono del recuadro con la flecha hacia arriba en Safari).</li>
+                        <li>Baja un poco y selecciona <strong>"Añadir a la pantalla de inicio"</strong> <span style="font-size: 1.1rem;">⊞</span>.</li>
+                        <li>Toca <strong>"Añadir"</strong> en la esquina superior derecha.</li>
+                    </ol>
+                    <p style="margin-top: 10px; font-size: 0.85rem; color: #94a3b8;">¡Se abrirá a pantalla completa como una app nativa sin barras de navegador!</p>
+                `;
+                this.btnAccionInstalarPWA.classList.add('oculto');
+                this.modalPWA.classList.remove('oculto');
+            } else {
+                // Navegadores de escritorio u otros
+                this.pwaInstrucciones.innerHTML = `
+                    <p style="margin-bottom: 8px; font-weight: bold; color: var(--neon-cyan);">Instalar en tu dispositivo:</p>
+                    <p>Puedes instalar Tetris haciendo clic en el icono de instalación <span style="font-size: 1.1rem;">⊕</span> que aparece en la barra de direcciones de tu navegador, o desde el menú de opciones (tres puntos) seleccionando <strong>"Instalar Tetris"</strong>.</p>
+                `;
+                this.btnAccionInstalarPWA.classList.add('oculto');
+                this.modalPWA.classList.remove('oculto');
+            }
+        });
     }
 
     initObservadoresTablero() {
         this.tablero.addObserver((tablero, evento) => {
-            // Actualizar datos del HUD
             this.txtPuntaje.textContent = `Puntaje: ${tablero.obtenerPuntaje()}`;
             this.txtNivel.textContent = `Nivel: ${tablero.obtenerNivel()}`;
 
@@ -148,7 +221,6 @@ class TetrisApp {
                 }
             }
 
-            // Redibujar el canvas
             this.renderer.renderizar(this.tablero);
         });
     }
@@ -202,7 +274,6 @@ class TetrisApp {
 
         const seMovio = this.tablero.moverPiezaAbajo();
         if (!seMovio) {
-            // Se fijó la pieza; intentar generar una nueva
             const generacionExitosa = this.tablero.generarNuevaPieza();
             if (!generacionExitosa) {
                 this.finalizarJuego();

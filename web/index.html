@@ -4,7 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Tetris Web - Edición Arcade Neón</title>
-    <meta name="description" content="Juego clásico de Tetris en versión web optimizada para Cloudflare, con persistencia de puntuaciones en LocalStorage y estética Cyberpunk Neón.">
+    <meta name="description" content="Juego clásico de Tetris en versión web optimizada para Cloudflare y PWA instalable en iOS y Android.">
+    
+    <!-- PWA & Iconos para Android e iOS -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Tetris">
+    <meta name="theme-color" content="#090a12">
+    <meta name="format-detection" content="telephone=no">
+
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -26,6 +37,9 @@
                 </button>
                 <button id="btnScore" class="btn-gradiente">
                     <span class="btn-text">Ver Puntuación</span>
+                </button>
+                <button id="btnInstalarApp" class="btn-secundario btn-instalar">
+                    <span>📲 Instalar App (PWA)</span>
                 </button>
             </div>
         </main>
@@ -142,6 +156,20 @@
                     <button id="btnReanudarPausa" class="btn-gradiente">Continuar Jugando</button>
                     <button id="btnReiniciarPausa" class="btn-secundario">Reiniciar Partida</button>
                     <button id="btnMenuDesdePausa" class="btn-peligro">Salir al Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: INSTALACIÓN PWA -->
+        <div id="modalPWA" class="modal-overlay oculto" role="dialog" aria-modal="true" aria-labelledby="modalTituloPWA">
+            <div class="modal-card">
+                <h3 id="modalTituloPWA" class="modal-titulo">Instalar Tetris</h3>
+                <div id="pwaInstrucciones" class="modal-guia-pwa">
+                    <!-- Contenido dinámico según SO (iOS o Android) -->
+                </div>
+                <div class="modal-botones">
+                    <button id="btnAccionInstalarPWA" class="btn-gradiente oculto">Instalar Ahora</button>
+                    <button id="btnCerrarModalPWA" class="btn-secundario">Entendido</button>
                 </div>
             </div>
         </div>
