@@ -1,7 +1,6 @@
-const CACHE_NAME = 'tetrisjacp-v2';
+const CACHE_NAME = 'tetrisjacp-v5';
 const ASSETS_TO_CACHE = [
     './',
-    './index.html',
     './manifest.json',
     './css/style.css',
     './js/app.js',
@@ -15,7 +14,8 @@ const ASSETS_TO_CACHE = [
     './js/ui/Controller.js',
     './js/ui/Renderer.js',
     './icons/icon-192.png',
-    './icons/icon-512.png'
+    './icons/icon-512.png',
+    './icons/icon-1024.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -24,7 +24,7 @@ self.addEventListener('install', (event) => {
             return Promise.all(
                 ASSETS_TO_CACHE.map((url) => {
                     return cache.add(url).catch((err) => {
-                        console.warn(`No se pudo cachear ${url} durante la instalación:`, err);
+                        console.warn(`[SW] No se pudo cachear ${url}:`, err);
                     });
                 })
             );
@@ -50,32 +50,45 @@ self.addEventListener('fetch', (event) => {
     if (event.request.method !== 'GET') return;
     if (!event.request.url.startsWith('http')) return;
 
-    event.respondWith(
-        caches.match(event.request).then((cachedResponse) => {
-            if (cachedResponse) {
-                // Actualizar en segundo plano si hay red disponible
-                fetch(event.request).then((networkResponse) => {
-                    if (networkResponse && networkResponse.status === 200) {
-                        const clone = networkResponse.clone();
-                        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-                    }
-                }).catch(() => {});
-                return cachedResponse;
-            }
+    const url = new URL(event.request.url);
 
-            return fetch(event.request).then((networkResponse) => {
+    // Si la solicitud es para /index.html, resolver con la raíz '/' para evitar el 307 de Cloudflare
+    if (url.pathname.endsWith('/index.html')) {
+        event.respondWith(
+            caches.match('./').then((cached) => {
+                if (cached) return cached;
+                return fetch('./').then((networkRes) => {
+                    if (networkRes && networkRes.status === 200) {
+                        const clone = networkRes.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put('./', clone));
+                    }
+                    return networkRes;
+                });
+            }).catch(() => {
+                return caches.match('./') || new Response('Offline', { status: 503 });
+            })
+        );
+        return;
+    }
+
+    // Estrategia Network-First con fallback a Cache y actualización silenciosa
+    event.respondWith(
+        fetch(event.request)
+            .then((networkResponse) => {
                 if (networkResponse && networkResponse.status === 200) {
                     const clone = networkResponse.clone();
                     caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
                 }
                 return networkResponse;
-            }).catch(() => {
-                // Fallback seguro contra ERR_FAILED si falla la red en navegación
-                if (event.request.mode === 'navigate') {
-                    return caches.match('./index.html') || caches.match('./');
-                }
-                return new Response('Sin conexión', { status: 503, statusText: 'Offline' });
-            });
-        })
+            })
+            .catch(() => {
+                return caches.match(event.request).then((cachedResponse) => {
+                    if (cachedResponse) return cachedResponse;
+                    if (event.request.mode === 'navigate') {
+                        return caches.match('./');
+                    }
+                    return new Response('Offline', { status: 503, statusText: 'Offline' });
+                });
+            })
     );
 });

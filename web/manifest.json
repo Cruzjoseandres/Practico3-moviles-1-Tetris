@@ -1,8 +1,9 @@
 {
+  "id": "/",
   "name": "TetrisJACP",
   "short_name": "TetrisJACP",
   "description": "Juego clásico de Tetris Arcade optimizado para dispositivos móviles y pantalla completa.",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
