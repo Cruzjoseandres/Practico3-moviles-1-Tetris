@@ -26,30 +26,68 @@ export class Controller {
      * Bloquea completamente el zoom por doble toque y gestos de pellizco en iOS Safari
      */
     initAntiZoomIOS() {
-        // 1. Prevenir zoom por doble toque en iOS
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', (e) => {
+        // 1. Bloqueo estricto del evento nativo dblclick (doble clic)
+        window.addEventListener('dblclick', (e) => {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, { passive: false, capture: true });
+
+        // 2. Prevenir zoom por doble toque rápido en iOS en touchstart (se captura antes de que Safari inicie el gesto)
+        let lastTouchStartTime = 0;
+        window.addEventListener('touchstart', (e) => {
             const now = Date.now();
-            if (now - lastTouchEnd <= 320) {
-                // Solo permitimos comportamiento por defecto en inputs de texto
+            // Bloquear pellizco de 2 o más dedos
+            if (e.touches && e.touches.length > 1) {
+                e.preventDefault();
+                return;
+            }
+            // Bloquear doble toque rápido dentro de 500ms
+            if (now - lastTouchStartTime <= 500) {
                 if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
                     e.preventDefault();
                 }
             }
-            lastTouchEnd = now;
-        }, { passive: false });
+            lastTouchStartTime = now;
+        }, { passive: false, capture: true });
 
-        // 2. Prevenir zoom con dos o más dedos (pinch-to-zoom)
-        document.addEventListener('touchstart', (e) => {
-            if (e.touches.length > 1) {
+        // 3. Prevenir zoom en touchend rápido
+        let lastTouchEndTime = 0;
+        window.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouchEndTime <= 500) {
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                }
+            }
+            lastTouchEndTime = now;
+        }, { passive: false, capture: true });
+
+        // 4. Bloqueo de gestos de escala y rotación específicos de Safari iOS
+        window.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false, capture: true });
+        window.addEventListener('gesturechange', (e) => e.preventDefault(), { passive: false, capture: true });
+        window.addEventListener('gestureend', (e) => e.preventDefault(), { passive: false, capture: true });
+
+        // 5. Prevenir zoom de arrastre multitáctil
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches && e.touches.length > 1) {
                 e.preventDefault();
             }
-        }, { passive: false });
+        }, { passive: false, capture: true });
 
-        // 3. Prevenir gestos nativos de Safari
-        document.addEventListener('gesturestart', (e) => e.preventDefault());
-        document.addEventListener('gesturechange', (e) => e.preventDefault());
-        document.addEventListener('gestureend', (e) => e.preventDefault());
+        // 6. Restablecer escala del viewport a 1.0 si el navegador intenta hacer zoom
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => {
+                if (window.visualViewport.scale > 1.01) {
+                    document.body.style.zoom = '0.9999';
+                    setTimeout(() => {
+                        document.body.style.zoom = '1';
+                        window.scrollTo(0, 0);
+                    }, 50);
+                }
+            });
+        }
     }
 
     initTeclado() {
@@ -108,16 +146,24 @@ export class Controller {
         const canvas = document.getElementById('tableroCanvas');
         if (!contenedor || !canvas) return;
 
+        // Prevenir doble toque y zoom nativo en el contenedor del tablero
+        contenedor.addEventListener('dblclick', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        }, { passive: false });
+
         contenedor.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
             if (this.engine.estaPausado || !this.engine.juegoActivo) return;
 
             this.startX = e.clientX;
             this.startY = e.clientY;
             this.lastDragY = e.clientY;
             this.haArrastrado = false;
-        });
+        }, { passive: false });
 
         contenedor.addEventListener('pointermove', (e) => {
+            e.preventDefault();
             if (this.engine.estaPausado || !this.engine.juegoActivo) return;
             if (e.buttons !== 1 && e.pointerType === 'mouse') return;
 
@@ -135,9 +181,10 @@ export class Controller {
                     this.lastDragY = e.clientY;
                 }
             }
-        });
+        }, { passive: false });
 
         contenedor.addEventListener('pointerup', (e) => {
+            e.preventDefault();
             if (this.engine.estaPausado || !this.engine.juegoActivo) return;
 
             const deltaX = Math.abs(e.clientX - this.startX);
@@ -155,7 +202,7 @@ export class Controller {
                     if (this.engine.moverDerecha()) SoundEffects.playMove();
                 }
             }
-        });
+        }, { passive: false });
 
         contenedor.addEventListener('pointercancel', () => {
             this.haArrastrado = false;
@@ -163,29 +210,49 @@ export class Controller {
     }
 
     /**
-     * Vincula botones táctiles con respuesta inmediata en pointerdown
-     * para eliminar cualquier retardo de 300ms y evitar zoom en iOS
+     * Vincula botones táctiles con respuesta inmediata en pointerdown/touchstart
+     * para eliminar cualquier retardo y bloquear 100% el zoom en iOS Safari
      */
     _vincularBotonRapido(boton, accion) {
         if (!boton) return;
 
         let ejecutado = false;
 
+        const disparar = (e) => {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            if (!ejecutado) {
+                ejecutado = true;
+                accion();
+                setTimeout(() => { ejecutado = false; }, 40);
+            }
+        };
+
         boton.addEventListener('pointerdown', (e) => {
+            disparar(e);
+        }, { passive: false });
+
+        boton.addEventListener('touchstart', (e) => {
+            disparar(e);
+        }, { passive: false });
+
+        boton.addEventListener('touchend', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            ejecutado = true;
-            accion();
-        });
+        }, { passive: false });
 
         boton.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            if (!ejecutado) {
-                accion();
-            }
-            ejecutado = false;
+            disparar(e);
         });
+
+        boton.addEventListener('dblclick', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        }, { passive: false });
     }
 
     initBotones() {
