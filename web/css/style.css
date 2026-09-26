@@ -132,6 +132,33 @@ button, .btn-gradiente, .btn-secundario, .btn-icono-sm, .btn-rotar, .btn-bajar,
     transform: scale(0.92);
 }
 
+.btn-action-desk {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--bg-card-border);
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 6px 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    touch-action: manipulation;
+}
+
+.btn-action-desk:hover {
+    background: rgba(0, 229, 255, 0.15);
+    border-color: rgba(0, 229, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 229, 255, 0.25);
+}
+
+.btn-action-desk:active {
+    transform: scale(0.94);
+}
+
 .btn-rotar {
     background: linear-gradient(135deg, #7c3aed 0%, #d500f9 100%);
     box-shadow: 0 4px 15px rgba(213, 0, 249, 0.35);
