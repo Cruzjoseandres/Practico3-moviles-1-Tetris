@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full bg-[#090a12]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -16,155 +16,241 @@
     <meta name="theme-color" content="#090a12">
     <meta name="format-detection" content="telephone=no">
 
+    <!-- Tailwind CSS v3 vía CDN oficial -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#090a12',
+                        card: 'rgba(20, 23, 38, 0.92)',
+                        neonCyan: '#00e5ff',
+                        neonPurple: '#d500f9',
+                        neonPink: '#ff1744',
+                    },
+                    fontFamily: {
+                        heading: ['Orbitron', 'sans-serif'],
+                        body: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!-- Estilos base, fuentes y reglas anti-zoom -->
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-    <div id="app">
+<body class="h-full w-full overflow-hidden select-none bg-[#090a12] text-[#f8fafc] font-['Outfit']">
+    <div id="app" class="w-full h-[100dvh] flex items-center justify-center relative overflow-hidden">
+        
         <!-- PANTALLA 1: MENÚ PRINCIPAL -->
-        <main id="pantallaMenu" class="pantalla">
-            <div class="logo-container">
-                <h1 class="logo-tetris">TetrisJACP</h1>
-                <p class="logo-subtitulo">Arcade Mobile Edition</p>
-            </div>
+        <main id="pantallaMenu" class="pantalla flex flex-col items-center justify-center w-full h-[100dvh] p-4 safe-top safe-bottom safe-left safe-right">
+            <div class="w-full max-w-sm md:max-w-md p-6 md:p-8 bg-card border border-white/10 rounded-2xl backdrop-blur-xl shadow-[0_0_50px_rgba(0,229,255,0.12)] flex flex-col items-center gap-6">
+                <div class="logo-container text-center">
+                    <h1 class="logo-tetris text-3xl md:text-5xl font-black font-['Orbitron'] tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 to-cyan-400">TetrisJACP</h1>
+                    <p class="logo-subtitulo text-xs md:text-sm text-cyan-400/80 tracking-widest uppercase mt-1">Arcade Edition</p>
+                </div>
 
-            <div class="menu-record-box">
-                <span id="txtRecord">Récord: 0</span>
-            </div>
+                <div class="menu-record-box w-full py-2.5 px-4 bg-black/40 border border-cyan-500/30 rounded-xl text-center shadow-[inset_0_0_15px_rgba(0,0,0,0.6)]">
+                    <span id="txtRecord" class="font-['Orbitron'] font-bold text-cyan-300 text-sm md:text-base">Récord: 0</span>
+                </div>
 
-            <div class="menu-botones">
-                <button id="btnIniciarJuego" class="btn-gradiente">
-                    <span class="btn-text">Jugar Ahora</span>
-                </button>
-                <button id="btnScore" class="btn-gradiente">
-                    <span class="btn-text">Ver Puntuación</span>
-                </button>
-                <button id="btnInstalarApp" class="btn-secundario btn-instalar">
-                    <span>📲 Instalar TetrisJACP (PWA)</span>
-                </button>
+                <div class="menu-botones flex flex-col gap-3.5 w-full">
+                    <button id="btnIniciarJuego" class="btn-gradiente w-full py-3.5 px-6 rounded-xl font-['Orbitron'] font-bold text-white text-base md:text-lg shadow-lg hover:brightness-110 active:scale-95 transition-all">
+                        <span class="btn-text">Jugar Ahora</span>
+                    </button>
+                    <button id="btnScore" class="btn-gradiente w-full py-3.5 px-6 rounded-xl font-['Orbitron'] font-bold text-white text-base md:text-lg shadow-lg hover:brightness-110 active:scale-95 transition-all">
+                        <span class="btn-text">Ver Puntuación</span>
+                    </button>
+                    <button id="btnInstalarApp" class="btn-secundario w-full py-3 px-6 rounded-xl font-['Orbitron'] font-medium text-white/90 text-xs md:text-sm border border-white/20 bg-white/5 hover:bg-white/10 active:scale-95 transition-all">
+                        <span>📲 Instalar TetrisJACP (PWA)</span>
+                    </button>
+                </div>
             </div>
         </main>
 
-        <!-- PANTALLA 2: JUEGO ACTIVO (MÁXIMO ANCHO DE PANTALLA) -->
-        <section id="pantallaJuego" class="pantalla oculto" aria-label="Pantalla de juego TetrisJACP">
-            <!-- Barra superior compacta unificada (HUD + Controles) -->
-            <header class="game-header-compact">
-                <div class="header-lado-izq">
+        <!-- PANTALLA 2: JUEGO ACTIVO (RESPONSIVE: MÓVIL CON NOTCH SAFE + DESKTOP ARCADE) -->
+        <section id="pantallaJuego" class="pantalla oculto flex flex-col h-[100dvh] w-full safe-top safe-bottom safe-left safe-right select-none" aria-label="Pantalla de juego TetrisJACP">
+            
+            <!-- HEADER MÓVIL: Controles en los extremos, CENTRO VACÍO para respetar el Notch / Dynamic Island del iPhone -->
+            <header class="game-header w-full flex items-center justify-between px-3 py-1.5 shrink-0 md:hidden">
+                <div class="flex items-center gap-2">
                     <button id="btnVolverMenu" class="btn-icono-sm" title="Menú" aria-label="Volver al Menú">🏠</button>
                     <button id="btnSonido" class="btn-icono-sm" title="Sonido" aria-label="Alternar Sonido">🔊</button>
                 </div>
 
-                <div class="hud-central">
-                    <div class="hud-col">
-                        <span class="hud-tag">PUNTAJE</span>
-                        <span id="txtPuntaje" class="hud-num-cyan">0</span>
-                    </div>
+                <!-- CENTRO 100% LIBRE: Para que la cámara o Dynamic Island jamás tape nada -->
+                <div class="flex-1 h-3 pointer-events-none"></div>
 
-                    <div class="hud-siguiente-box">
-                        <span class="hud-tag">SIGUIENTE</span>
-                        <canvas id="siguientePiezaCanvas"></canvas>
-                    </div>
-
-                    <div class="hud-col">
-                        <span class="hud-tag">NIVEL</span>
-                        <span id="txtNivel" class="hud-num-purple">1</span>
-                    </div>
-                </div>
-
-                <div class="header-lado-der">
+                <div class="flex items-center gap-2">
                     <button id="btnPausa" class="btn-icono-sm" title="Pausar" aria-label="Pausa">⏸</button>
                     <button id="btnReiniciar" class="btn-icono-sm" title="Reiniciar" aria-label="Reiniciar">🔄</button>
                 </div>
             </header>
 
-            <!-- Contenedor del tablero (10x20) que aprovecha TODO el ancho -->
-            <div class="tablero-container" id="tableroTouchZone">
-                <div class="tablero-wrapper" id="tableroWrapper">
-                    <canvas id="tableroCanvas"></canvas>
-                    <div class="touch-hint izq">◄ Toca</div>
-                    <div class="touch-hint der">Toca ►</div>
-                    <div class="drag-hint-down">▼ Desliza hacia abajo para descender ▼</div>
-                </div>
-            </div>
+            <!-- ÁREA PRINCIPAL: Columna en móvil, Fila amplia en Desktop/Laptop (md:) -->
+            <div class="flex-1 min-h-0 w-full flex flex-col md:flex-row md:items-center md:justify-center md:gap-8 md:max-w-5xl md:mx-auto md:p-3">
+                
+                <!-- HUD MÓVIL: Debajo del Notch, 100% visible con caja destacada de SIGUIENTE PIEZA -->
+                <div class="game-hud-mobile flex items-center justify-between w-full max-w-sm mx-auto px-4 py-1.5 my-1 bg-card border border-white/10 rounded-xl backdrop-blur-md shrink-0 md:hidden shadow-md">
+                    <div class="flex flex-col items-center flex-1">
+                        <span class="text-[0.62rem] text-slate-400 font-bold uppercase tracking-wider">PUNTAJE</span>
+                        <span id="txtPuntaje" class="font-['Orbitron'] font-bold text-cyan-400 text-lg leading-tight">0</span>
+                    </div>
 
-            <!-- Controles inferiores ergonómicos para pulgares -->
-            <div class="controles-inferiores">
-                <div class="fila-botones-principales">
-                    <button id="btnRotar" class="btn-gradiente btn-rotar" aria-label="Rotar pieza">
-                        <span>🔄 Rotar</span>
-                    </button>
-                    <button id="btnBajar" class="btn-gradiente btn-bajar" aria-label="Caída rápida instantánea">
-                        <span>⚡ Bajar</span>
-                    </button>
+                    <!-- CAJA DE SIGUIENTE PIEZA MÓVIL -->
+                    <div class="flex flex-col items-center flex-1">
+                        <span class="text-[0.62rem] text-slate-400 font-bold uppercase tracking-wider mb-0.5">SIGUIENTE</span>
+                        <div class="w-11 h-11 bg-[#090a12] rounded-lg border border-cyan-400/50 p-0.5 flex items-center justify-center shadow-[0_0_10px_rgba(0,229,255,0.25)]">
+                            <canvas id="siguientePiezaCanvas" class="w-full h-full block"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center flex-1">
+                        <span class="text-[0.62rem] text-slate-400 font-bold uppercase tracking-wider">NIVEL</span>
+                        <span id="txtNivel" class="font-['Orbitron'] font-bold text-fuchsia-400 text-lg leading-tight">1</span>
+                    </div>
+                </div>
+
+                <!-- CONTENEDOR DEL TABLERO DE JUEGO (10x20) -->
+                <div class="tablero-container flex-1 min-h-0 w-full flex items-center justify-center relative p-1 md:p-0 md:h-[84vh] md:w-auto" id="tableroTouchZone">
+                    <div class="tablero-wrapper h-full aspect-[1/2] max-h-full max-w-full bg-[#0d0f17] rounded-lg border-2 border-cyan-400/70 shadow-[0_0_25px_rgba(0,229,255,0.25)] relative overflow-hidden" id="tableroWrapper">
+                        <canvas id="tableroCanvas" class="w-full h-full block"></canvas>
+                        <div class="touch-hint izq md:hidden">◄ Toca</div>
+                        <div class="touch-hint der md:hidden">Toca ►</div>
+                        <div class="drag-hint-down md:hidden">▼ Desliza hacia abajo para descender ▼</div>
+                    </div>
+                </div>
+
+                <!-- SIDEBAR ARCADE PARA PC / LAPTOPS / IPADS (Visible solo en md:) -->
+                <aside class="hidden md:flex flex-col gap-4 w-72 shrink-0 bg-card border border-white/10 rounded-2xl p-5 shadow-2xl backdrop-blur-xl">
+                    <!-- Controles y Título Desktop -->
+                    <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                        <span class="font-['Orbitron'] font-bold text-cyan-400 text-lg tracking-wider">TetrisJACP</span>
+                        <div class="flex gap-2">
+                            <button id="btnVolverMenuDesk" class="btn-icono-sm" title="Volver al Menú">🏠</button>
+                            <button id="btnSonidoDesk" class="btn-icono-sm" title="Sonido">🔊</button>
+                            <button id="btnPausaDesk" class="btn-icono-sm" title="Pausar">⏸</button>
+                            <button id="btnReiniciarDesk" class="btn-icono-sm" title="Reiniciar">🔄</button>
+                        </div>
+                    </div>
+
+                    <!-- Caja Siguiente Pieza Desktop -->
+                    <div class="flex flex-col items-center bg-black/40 border border-cyan-500/30 rounded-xl p-3.5">
+                        <span class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-2 font-['Orbitron']">SIGUIENTE PIEZA</span>
+                        <div class="w-20 h-20 bg-[#090a12] rounded-lg border border-cyan-400/50 flex items-center justify-center shadow-[0_0_15px_rgba(0,229,255,0.25)]">
+                            <canvas id="siguientePiezaCanvasDesk" class="w-full h-full block"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas Desktop -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex flex-col items-center bg-black/40 border border-white/10 rounded-xl p-3">
+                            <span class="text-[0.68rem] text-slate-400 font-bold uppercase tracking-wider font-['Orbitron']">PUNTAJE</span>
+                            <span id="txtPuntajeDesk" class="font-['Orbitron'] font-black text-cyan-400 text-2xl mt-1">0</span>
+                        </div>
+                        <div class="flex flex-col items-center bg-black/40 border border-white/10 rounded-xl p-3">
+                            <span class="text-[0.68rem] text-slate-400 font-bold uppercase tracking-wider font-['Orbitron']">NIVEL</span>
+                            <span id="txtNivelDesk" class="font-['Orbitron'] font-black text-fuchsia-400 text-2xl mt-1">1</span>
+                        </div>
+                    </div>
+
+                    <!-- Guía de Teclado Desktop -->
+                    <div class="bg-black/30 border border-white/5 rounded-xl p-3.5 text-xs text-slate-300">
+                        <span class="text-[0.68rem] text-slate-400 font-bold uppercase tracking-wider font-['Orbitron'] block mb-2">CONTROLES DE TECLADO</span>
+                        <ul class="space-y-1.5 font-sans">
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Mover:</span> <span class="space-x-1"><kbd class="px-1.5 py-0.5 bg-white/10 rounded font-mono text-cyan-300">◄ ►</kbd><kbd class="px-1.5 py-0.5 bg-white/10 rounded font-mono text-cyan-300">A/D</kbd></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Rotar:</span> <span class="space-x-1"><kbd class="px-1.5 py-0.5 bg-white/10 rounded font-mono text-fuchsia-300">▲</kbd><kbd class="px-1.5 py-0.5 bg-white/10 rounded font-mono text-fuchsia-300">W</kbd></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Bajar suave:</span> <span class="space-x-1"><kbd class="px-1.5 py-0.5 bg-white/10 rounded font-mono text-cyan-300">▼</kbd><kbd class="px-1.5 py-0.5 bg-white/10 rounded font-mono text-cyan-300">S</kbd></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Hard Drop:</span> <kbd class="px-2 py-0.5 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded font-mono font-bold">ESPACIO</kbd></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Pausar:</span> <kbd class="px-1.5 py-0.5 bg-white/10 rounded font-mono text-slate-300">P / ESC</kbd></li>
+                        </ul>
+                    </div>
+                </aside>
+
+                <!-- BOTONES INFERIORES MÓVILES (Ocultos en desktop) -->
+                <div class="controles-inferiores w-full pt-1 shrink-0 md:hidden">
+                    <div class="fila-botones-principales flex gap-2.5 w-full">
+                        <button id="btnRotar" class="btn-gradiente btn-rotar flex-1 h-12 rounded-xl font-['Orbitron'] font-bold text-white flex items-center justify-center gap-2 active:scale-95 shadow-lg" aria-label="Rotar pieza">
+                            <span>🔄 Rotar</span>
+                        </button>
+                        <button id="btnBajar" class="btn-gradiente btn-bajar flex-1 h-12 rounded-xl font-['Orbitron'] font-bold text-white flex items-center justify-center gap-2 active:scale-95 shadow-lg" aria-label="Caída rápida instantánea">
+                            <span>⚡ Bajar</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- PANTALLA 3: LISTA DE PUNTUACIONES -->
-        <section id="pantallaPuntuaciones" class="pantalla oculto" aria-label="Pantalla de mejores puntuaciones">
-            <div class="score-header">
-                <h2 class="score-titulo">Top 10 Récords</h2>
-            </div>
+        <section id="pantallaPuntuaciones" class="pantalla oculto flex flex-col items-center justify-center w-full h-[100dvh] p-4 safe-top safe-bottom safe-left safe-right" aria-label="Pantalla de mejores puntuaciones">
+            <div class="w-full max-w-sm md:max-w-xl p-5 md:p-7 bg-card border border-white/10 rounded-2xl backdrop-blur-xl shadow-2xl flex flex-col">
+                <div class="score-header text-center mb-4">
+                    <h2 class="score-titulo font-['Orbitron'] text-2xl md:text-3xl font-black text-cyan-400">Top 10 Récords</h2>
+                </div>
 
-            <div class="score-tabla-container">
-                <table class="score-tabla">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Nombre</th>
-                            <th>Puntos</th>
-                            <th>Nivel</th>
-                            <th>Fecha</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaPuntuacionesBody">
-                        <!-- Filas dinámicas generadas con JS -->
-                    </tbody>
-                </table>
-            </div>
+                <div class="score-tabla-container max-h-[50vh] overflow-y-auto mb-4 border border-white/10 rounded-xl">
+                    <table class="score-tabla w-full text-left border-collapse text-xs md:text-sm">
+                        <thead class="bg-black/50 text-slate-400 font-['Orbitron'] uppercase text-[0.7rem] sticky top-0">
+                            <tr>
+                                <th class="p-2.5">#</th>
+                                <th class="p-2.5">Nombre</th>
+                                <th class="p-2.5">Puntos</th>
+                                <th class="p-2.5">Nivel</th>
+                                <th class="p-2.5">Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaPuntuacionesBody" class="divide-y divide-white/5">
+                            <!-- Filas dinámicas -->
+                        </tbody>
+                    </table>
+                </div>
 
-            <div class="score-acciones">
-                <button id="btnVolverDesdeScore" class="btn-secundario">Menú</button>
-                <button id="btnLimpiarPuntajes" class="btn-peligro">Borrar</button>
-                <button id="btnJugarDesdeScore" class="btn-gradiente">Jugar</button>
+                <div class="score-acciones flex gap-3">
+                    <button id="btnVolverDesdeScore" class="btn-secundario flex-1 py-2.5 rounded-xl font-['Orbitron'] font-medium text-xs md:text-sm">Menú</button>
+                    <button id="btnLimpiarPuntajes" class="btn-peligro flex-1 py-2.5 rounded-xl font-['Orbitron'] font-medium text-xs md:text-sm bg-red-600/80 hover:bg-red-600 text-white">Borrar</button>
+                    <button id="btnJugarDesdeScore" class="btn-gradiente flex-1 py-2.5 rounded-xl font-['Orbitron'] font-bold text-xs md:text-sm">Jugar</button>
+                </div>
             </div>
         </section>
 
         <!-- MODAL: FIN DEL JUEGO -->
-        <div id="modalGameOver" class="modal-overlay oculto" role="dialog" aria-modal="true" aria-labelledby="modalTituloGameOver">
-            <div class="modal-card">
-                <h3 id="modalTituloGameOver" class="modal-titulo">¡Juego Terminado!</h3>
-                <p id="txtPuntajeFinal" class="modal-mensaje">Tu puntaje final es: 0</p>
-                <input type="text" id="inputNombreJugador" class="modal-input" placeholder="Ingresa tu nombre" maxlength="15" autocomplete="off">
-                <div class="modal-botones">
-                    <button id="btnGuardarPuntaje" class="btn-gradiente">Guardar Puntuación</button>
-                    <button id="btnCancelarGameOver" class="btn-secundario">Volver al Menú</button>
+        <div id="modalGameOver" class="modal-overlay oculto fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalTituloGameOver">
+            <div class="modal-card w-full max-w-sm p-6 bg-card border border-white/15 rounded-2xl shadow-2xl text-center flex flex-col gap-4">
+                <h3 id="modalTituloGameOver" class="modal-titulo font-['Orbitron'] text-xl font-bold text-cyan-400">¡Juego Terminado!</h3>
+                <p id="txtPuntajeFinal" class="modal-mensaje text-slate-200 text-base">Tu puntaje final es: 0</p>
+                <input type="text" id="inputNombreJugador" class="modal-input w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white text-center outline-none focus:border-cyan-400 text-base" placeholder="Ingresa tu nombre" maxlength="15" autocomplete="off">
+                <div class="modal-botones flex flex-col gap-2.5">
+                    <button id="btnGuardarPuntaje" class="btn-gradiente w-full py-3 rounded-xl font-['Orbitron'] font-bold text-white text-sm">Guardar Puntuación</button>
+                    <button id="btnCancelarGameOver" class="btn-secundario w-full py-2.5 rounded-xl font-['Orbitron'] font-medium text-white/80 text-xs">Volver al Menú</button>
                 </div>
             </div>
         </div>
 
         <!-- MODAL: PAUSA -->
-        <div id="modalPausa" class="modal-overlay oculto" role="dialog" aria-modal="true" aria-labelledby="modalTituloPausa">
-            <div class="modal-card">
-                <h3 id="modalTituloPausa" class="modal-titulo">Juego en Pausa</h3>
-                <p class="modal-mensaje">¿Qué deseas hacer?</p>
-                <div class="modal-botones">
-                    <button id="btnReanudarPausa" class="btn-gradiente">Continuar Jugando</button>
-                    <button id="btnReiniciarPausa" class="btn-secundario">Reiniciar Partida</button>
-                    <button id="btnMenuDesdePausa" class="btn-peligro">Salir al Menú</button>
+        <div id="modalPausa" class="modal-overlay oculto fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalTituloPausa">
+            <div class="modal-card w-full max-w-sm p-6 bg-card border border-white/15 rounded-2xl shadow-2xl text-center flex flex-col gap-4">
+                <h3 id="modalTituloPausa" class="modal-titulo font-['Orbitron'] text-xl font-bold text-cyan-400">Juego en Pausa</h3>
+                <p class="modal-mensaje text-slate-300 text-sm">¿Qué deseas hacer?</p>
+                <div class="modal-botones flex flex-col gap-2.5">
+                    <button id="btnReanudarPausa" class="btn-gradiente w-full py-3 rounded-xl font-['Orbitron'] font-bold text-white text-sm">Continuar Jugando</button>
+                    <button id="btnReiniciarPausa" class="btn-secundario w-full py-2.5 rounded-xl font-['Orbitron'] font-medium text-white/80 text-xs">Reiniciar Partida</button>
+                    <button id="btnMenuDesdePausa" class="btn-peligro w-full py-2.5 rounded-xl font-['Orbitron'] font-medium text-white text-xs bg-red-600/80 hover:bg-red-600">Salir al Menú</button>
                 </div>
             </div>
         </div>
 
         <!-- MODAL: INSTALACIÓN PWA -->
-        <div id="modalPWA" class="modal-overlay oculto" role="dialog" aria-modal="true" aria-labelledby="modalTituloPWA">
-            <div class="modal-card">
-                <h3 id="modalTituloPWA" class="modal-titulo">Instalar TetrisJACP</h3>
-                <div id="pwaInstrucciones" class="modal-guia-pwa">
-                    <!-- Contenido dinámico según SO -->
+        <div id="modalPWA" class="modal-overlay oculto fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalTituloPWA">
+            <div class="modal-card w-full max-w-sm p-6 bg-card border border-white/15 rounded-2xl shadow-2xl text-center flex flex-col gap-4">
+                <h3 id="modalTituloPWA" class="modal-titulo font-['Orbitron'] text-lg font-bold text-cyan-400">Instalar TetrisJACP</h3>
+                <div id="pwaInstrucciones" class="modal-guia-pwa text-left text-xs text-slate-300 bg-black/40 p-3.5 rounded-xl border-l-2 border-cyan-400">
+                    <!-- Contenido dinámico -->
                 </div>
-                <div class="modal-botones">
-                    <button id="btnAccionInstalarPWA" class="btn-gradiente oculto">Instalar Ahora</button>
-                    <button id="btnCerrarModalPWA" class="btn-secundario">Entendido</button>
+                <div class="modal-botones flex flex-col gap-2">
+                    <button id="btnAccionInstalarPWA" class="btn-gradiente oculto w-full py-3 rounded-xl font-['Orbitron'] font-bold text-white text-sm">Instalar Ahora</button>
+                    <button id="btnCerrarModalPWA" class="btn-secundario w-full py-2.5 rounded-xl font-['Orbitron'] font-medium text-white/80 text-xs">Entendido</button>
                 </div>
             </div>
         </div>

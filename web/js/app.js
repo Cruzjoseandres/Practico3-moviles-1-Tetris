@@ -20,9 +20,12 @@ class TetrisApp {
         this.pantallaPuntuaciones = document.getElementById('pantallaPuntuaciones');
 
         this.txtPuntaje = document.getElementById('txtPuntaje');
+        this.txtPuntajeDesk = document.getElementById('txtPuntajeDesk');
         this.txtNivel = document.getElementById('txtNivel');
+        this.txtNivelDesk = document.getElementById('txtNivelDesk');
         this.txtRecord = document.getElementById('txtRecord');
         this.btnPausa = document.getElementById('btnPausa');
+        this.btnPausaDesk = document.getElementById('btnPausaDesk');
 
         // Modales
         this.modalGameOver = document.getElementById('modalGameOver');
@@ -47,10 +50,11 @@ class TetrisApp {
         this.tablaPuntuacionesBody = document.getElementById('tablaPuntuacionesBody');
         this.btnLimpiarPuntajes = document.getElementById('btnLimpiarPuntajes');
 
-        // Inicializar Renderizador
+        // Inicializar Renderizador (con soporte de canvas siguiente móvil y desktop)
         const canvasTablero = document.getElementById('tableroCanvas');
         const canvasSiguiente = document.getElementById('siguientePiezaCanvas');
-        this.renderer = new Renderer(canvasTablero, canvasSiguiente);
+        const canvasSiguienteDesk = document.getElementById('siguientePiezaCanvasDesk');
+        this.renderer = new Renderer(canvasTablero, canvasSiguiente, canvasSiguienteDesk);
 
         // Inicializar Controlador de entradas (con soporte anti-zoom para iOS)
         this.controller = new Controller(this);
@@ -73,8 +77,8 @@ class TetrisApp {
             this.irAPantalla('puntuaciones');
         });
 
-        // Botones de Navegación desde el juego
-        document.getElementById('btnVolverMenu')?.addEventListener('click', () => {
+        // Botones de Navegación desde el juego (móvil y desktop)
+        const volverAlMenu = () => {
             this.pausarJuego();
             if (confirm('¿Seguro que deseas salir al menú principal? Se perderá el juego actual.')) {
                 this.detenerJuego();
@@ -82,7 +86,9 @@ class TetrisApp {
             } else {
                 this.reanudarJuego();
             }
-        });
+        };
+        document.getElementById('btnVolverMenu')?.addEventListener('click', volverAlMenu);
+        document.getElementById('btnVolverMenuDesk')?.addEventListener('click', volverAlMenu);
 
         // Botones desde la pantalla de puntuaciones
         document.getElementById('btnVolverDesdeScore')?.addEventListener('click', () => {
@@ -207,8 +213,13 @@ class TetrisApp {
 
     initObservadoresTablero() {
         this.tablero.addObserver((tablero, evento) => {
-            this.txtPuntaje.textContent = `Puntaje: ${tablero.obtenerPuntaje()}`;
-            this.txtNivel.textContent = `Nivel: ${tablero.obtenerNivel()}`;
+            const pts = tablero.obtenerPuntaje();
+            const lvl = tablero.obtenerNivel();
+
+            if (this.txtPuntaje) this.txtPuntaje.textContent = pts;
+            if (this.txtPuntajeDesk) this.txtPuntajeDesk.textContent = pts;
+            if (this.txtNivel) this.txtNivel.textContent = lvl;
+            if (this.txtNivelDesk) this.txtNivelDesk.textContent = lvl;
 
             if (evento) {
                 if (evento.tipo === 'puntuacion_actualizada') {
@@ -248,6 +259,11 @@ class TetrisApp {
         this.juegoActivo = true;
         this.estaPausado = false;
         this.actualizarBotonPausa();
+
+        if (this.txtPuntaje) this.txtPuntaje.textContent = '0';
+        if (this.txtPuntajeDesk) this.txtPuntajeDesk.textContent = '0';
+        if (this.txtNivel) this.txtNivel.textContent = '1';
+        if (this.txtNivelDesk) this.txtNivelDesk.textContent = '1';
 
         const inicioExitoso = this.tablero.generarNuevaPieza();
         if (!inicioExitoso) {
@@ -402,13 +418,16 @@ class TetrisApp {
     }
 
     actualizarBotonPausa() {
-        if (!this.btnPausa) return;
-        if (this.estaPausado) {
-            this.btnPausa.innerHTML = '<span class="icon">▶</span>';
-            this.btnPausa.setAttribute('title', 'Reanudar');
-        } else {
-            this.btnPausa.innerHTML = '<span class="icon">⏸</span>';
-            this.btnPausa.setAttribute('title', 'Pausar');
+        const iconHtml = this.estaPausado ? '<span class="icon">▶</span>' : '<span class="icon">⏸</span>';
+        const titleText = this.estaPausado ? 'Reanudar' : 'Pausar';
+
+        if (this.btnPausa) {
+            this.btnPausa.innerHTML = iconHtml;
+            this.btnPausa.setAttribute('title', titleText);
+        }
+        if (this.btnPausaDesk) {
+            this.btnPausaDesk.innerHTML = iconHtml;
+            this.btnPausaDesk.setAttribute('title', titleText);
         }
     }
 

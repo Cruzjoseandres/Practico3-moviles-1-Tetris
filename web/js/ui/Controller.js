@@ -271,30 +271,45 @@ export class Controller {
             this.engine.bajarHardDrop();
         });
 
-        // Botón Pausa
+        // Botón Pausa (móvil y desktop)
         const btnPausa = document.getElementById('btnPausa');
-        this._vincularBotonRapido(btnPausa, () => {
-            this.engine.alternarPausa();
-        });
+        this._vincularBotonRapido(btnPausa, () => this.engine.alternarPausa());
+        const btnPausaDesk = document.getElementById('btnPausaDesk');
+        this._vincularBotonRapido(btnPausaDesk, () => this.engine.alternarPausa());
 
-        // Botón Reiniciar
+        // Botón Reiniciar (móvil y desktop)
         const btnReiniciar = document.getElementById('btnReiniciar');
-        this._vincularBotonRapido(btnReiniciar, () => {
-            this.engine.reiniciar();
-        });
+        this._vincularBotonRapido(btnReiniciar, () => this.engine.reiniciar());
+        const btnReiniciarDesk = document.getElementById('btnReiniciarDesk');
+        this._vincularBotonRapido(btnReiniciarDesk, () => this.engine.reiniciar());
 
-        // Botón Sonido
+        // Botón Sonido (móvil y desktop)
         const btnSonido = document.getElementById('btnSonido');
-        if (btnSonido) {
-            const actualizarIconoSonido = () => {
-                btnSonido.textContent = SoundEffects.estaHabilitado() ? '🔊' : '🔇';
-                btnSonido.setAttribute('aria-label', SoundEffects.estaHabilitado() ? 'Silenciar sonido' : 'Activar sonido');
-            };
-            actualizarIconoSonido();
+        const btnSonidoDesk = document.getElementById('btnSonidoDesk');
+        const actualizarIconosSonido = () => {
+            const ico = SoundEffects.estaHabilitado() ? '🔊' : '🔇';
+            const label = SoundEffects.estaHabilitado() ? 'Silenciar sonido' : 'Activar sonido';
+            if (btnSonido) {
+                btnSonido.textContent = ico;
+                btnSonido.setAttribute('aria-label', label);
+            }
+            if (btnSonidoDesk) {
+                btnSonidoDesk.textContent = ico;
+                btnSonidoDesk.setAttribute('aria-label', label);
+            }
+        };
+        actualizarIconosSonido();
 
+        if (btnSonido) {
             this._vincularBotonRapido(btnSonido, () => {
                 SoundEffects.alternarSonido();
-                actualizarIconoSonido();
+                actualizarIconosSonido();
+            });
+        }
+        if (btnSonidoDesk) {
+            this._vincularBotonRapido(btnSonidoDesk, () => {
+                SoundEffects.alternarSonido();
+                actualizarIconosSonido();
             });
         }
     }

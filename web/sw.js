@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tetrisjacp-v6';
+const CACHE_NAME = 'tetrisjacp-v7';
 const ASSETS_TO_CACHE = [
     './',
     './manifest.json',
@@ -15,7 +15,8 @@ const ASSETS_TO_CACHE = [
     './js/ui/Renderer.js',
     './icons/icon-192.png',
     './icons/icon-512.png',
-    './icons/icon-1024.png'
+    './icons/icon-1024.png',
+    'https://cdn.tailwindcss.com'
 ];
 
 self.addEventListener('install', (event) => {

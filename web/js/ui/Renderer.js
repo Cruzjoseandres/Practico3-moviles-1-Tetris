@@ -3,12 +3,15 @@
  * Replica y mejora el dibujado de TableroTetris.kt y SiguientePiezaView.kt
  */
 export class Renderer {
-    constructor(canvasTablero, canvasSiguiente) {
+    constructor(canvasTablero, canvasSiguiente, canvasSiguienteDesk = null) {
         this.canvasTablero = canvasTablero;
         this.ctxTablero = canvasTablero.getContext('2d');
 
         this.canvasSiguiente = canvasSiguiente;
-        this.ctxSiguiente = canvasSiguiente.getContext('2d');
+        this.ctxSiguiente = canvasSiguiente ? canvasSiguiente.getContext('2d') : null;
+
+        this.canvasSiguienteDesk = canvasSiguienteDesk;
+        this.ctxSiguienteDesk = canvasSiguienteDesk ? canvasSiguienteDesk.getContext('2d') : null;
 
         this.anchoTablero = 10;
         this.altoTablero = 20;
@@ -18,28 +21,45 @@ export class Renderer {
     }
 
     ajustarResolucion() {
-        // Obtenemos el tamaño real en CSS del canvas del tablero
-        const rect = this.canvasTablero.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0) {
-            const dpr = window.devicePixelRatio || 1;
-            this.canvasTablero.width = rect.width * dpr;
-            this.canvasTablero.height = rect.height * dpr;
-            this.ctxTablero.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
-            this.ctxTablero.scale(dpr, dpr);
-            this.anchoPx = rect.width;
-            this.altoPx = rect.height;
+        const dpr = window.devicePixelRatio || 1;
+
+        // Canvas tablero principal
+        if (this.canvasTablero) {
+            const rect = this.canvasTablero.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+                this.canvasTablero.width = rect.width * dpr;
+                this.canvasTablero.height = rect.height * dpr;
+                this.ctxTablero.setTransform(1, 0, 0, 1, 0, 0);
+                this.ctxTablero.scale(dpr, dpr);
+                this.anchoPx = rect.width;
+                this.altoPx = rect.height;
+            }
         }
 
-        // Canvas de siguiente pieza
-        const rectSig = this.canvasSiguiente.getBoundingClientRect();
-        if (rectSig.width > 0 && rectSig.height > 0) {
-            const dpr = window.devicePixelRatio || 1;
-            this.canvasSiguiente.width = rectSig.width * dpr;
-            this.canvasSiguiente.height = rectSig.height * dpr;
-            this.ctxSiguiente.setTransform(1, 0, 0, 1, 0, 0);
-            this.ctxSiguiente.scale(dpr, dpr);
-            this.anchoSigPx = rectSig.width;
-            this.altoSigPx = rectSig.height;
+        // Canvas siguiente móvil
+        if (this.canvasSiguiente) {
+            const rectSig = this.canvasSiguiente.getBoundingClientRect();
+            if (rectSig.width > 0 && rectSig.height > 0) {
+                this.canvasSiguiente.width = rectSig.width * dpr;
+                this.canvasSiguiente.height = rectSig.height * dpr;
+                this.ctxSiguiente.setTransform(1, 0, 0, 1, 0, 0);
+                this.ctxSiguiente.scale(dpr, dpr);
+                this.anchoSigPx = rectSig.width;
+                this.altoSigPx = rectSig.height;
+            }
+        }
+
+        // Canvas siguiente desktop
+        if (this.canvasSiguienteDesk) {
+            const rectDesk = this.canvasSiguienteDesk.getBoundingClientRect();
+            if (rectDesk.width > 0 && rectDesk.height > 0) {
+                this.canvasSiguienteDesk.width = rectDesk.width * dpr;
+                this.canvasSiguienteDesk.height = rectDesk.height * dpr;
+                this.ctxSiguienteDesk.setTransform(1, 0, 0, 1, 0, 0);
+                this.ctxSiguienteDesk.scale(dpr, dpr);
+                this.anchoSigDeskPx = rectDesk.width;
+                this.altoSigDeskPx = rectDesk.height;
+            }
         }
     }
 
@@ -49,7 +69,14 @@ export class Renderer {
         }
 
         this.dibujarTableroPrincipal(tableroJuego);
-        this.dibujarSiguientePieza(tableroJuego.obtenerSiguientePieza());
+
+        const sigPieza = tableroJuego.obtenerSiguientePieza();
+        if (this.ctxSiguiente && this.canvasSiguiente) {
+            this._dibujarPiezaEnCanvas(this.ctxSiguiente, this.canvasSiguiente, this.anchoSigPx, this.altoSigPx, sigPieza);
+        }
+        if (this.ctxSiguienteDesk && this.canvasSiguienteDesk) {
+            this._dibujarPiezaEnCanvas(this.ctxSiguienteDesk, this.canvasSiguienteDesk, this.anchoSigDeskPx, this.altoSigDeskPx, sigPieza);
+        }
     }
 
     dibujarTableroPrincipal(tableroJuego) {
@@ -137,9 +164,17 @@ export class Renderer {
     }
 
     dibujarSiguientePieza(pieza) {
-        const ctx = this.ctxSiguiente;
-        const w = this.anchoSigPx || this.canvasSiguiente.clientWidth;
-        const h = this.altoSigPx || this.canvasSiguiente.clientHeight;
+        if (this.ctxSiguiente && this.canvasSiguiente) {
+            this._dibujarPiezaEnCanvas(this.ctxSiguiente, this.canvasSiguiente, this.anchoSigPx, this.altoSigPx, pieza);
+        }
+        if (this.ctxSiguienteDesk && this.canvasSiguienteDesk) {
+            this._dibujarPiezaEnCanvas(this.ctxSiguienteDesk, this.canvasSiguienteDesk, this.anchoSigDeskPx, this.altoSigDeskPx, pieza);
+        }
+    }
+
+    _dibujarPiezaEnCanvas(ctx, canvas, wPx, hPx, pieza) {
+        const w = wPx || canvas.clientWidth || 44;
+        const h = hPx || canvas.clientHeight || 44;
 
         ctx.clearRect(0, 0, w, h);
 

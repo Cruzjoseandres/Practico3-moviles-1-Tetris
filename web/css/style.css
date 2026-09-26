@@ -1,6 +1,5 @@
 /* ========================================================
-   TETRISJACP - STYLESHEET (MOBILE FIRST & FULL WIDTH)
-   Optimizado para aprovechar al máximo el ancho de pantalla en móviles
+   TETRISJACP - STYLESHEET (TAILWIND + SAFE AREAS + ANTI-ZOOM)
    ======================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Outfit:wght@400;600;700&display=swap');
@@ -14,18 +13,33 @@
     --neon-purple: #d500f9;
     --neon-purple-glow: rgba(213, 0, 249, 0.4);
     --neon-pink: #ff1744;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
     --btn-gradient: linear-gradient(135deg, #d500f9 0%, #00e5ff 100%);
-    --btn-gradient-hover: linear-gradient(135deg, #e040fb 0%, #18ffff 100%);
-    --radius-sm: 6px;
-    --radius-md: 12px;
-    --radius-lg: 18px;
     --font-heading: 'Orbitron', sans-serif;
     --font-body: 'Outfit', sans-serif;
 }
 
-/* Reglas estrictas anti-zoom en iOS Safari */
+/* ========================================================
+   REGLAS ESTRICTAS DE SAFE AREA (NOTCH / DYNAMIC ISLAND)
+   ======================================================== */
+.safe-top {
+    padding-top: max(12px, env(safe-area-inset-top, 0px)) !important;
+}
+
+.safe-bottom {
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.safe-left {
+    padding-left: max(8px, env(safe-area-inset-left, 0px)) !important;
+}
+
+.safe-right {
+    padding-right: max(8px, env(safe-area-inset-right, 0px)) !important;
+}
+
+/* ========================================================
+   BLOQUEO ESTRICTO ANTI-ZOOM Y GESTOS EN IOS SAFARI
+   ======================================================== */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -41,7 +55,7 @@ html, body {
     height: 100%;
     height: 100dvh;
     background-color: var(--bg-dark);
-    color: var(--text-primary);
+    color: #f8fafc;
     font-family: var(--font-body);
     overflow: hidden;
     position: fixed;
@@ -51,7 +65,7 @@ html, body {
 
 #app, .pantalla, #pantallaJuego, .tablero-container, .tablero-wrapper, #tableroCanvas,
 button, .btn-gradiente, .btn-secundario, .btn-icono-sm, .btn-rotar, .btn-bajar,
-.controles-inferiores, .fila-botones-principales, .game-header-compact {
+.controles-inferiores, .fila-botones-principales, .game-header {
     touch-action: none !important;
 }
 
@@ -59,205 +73,56 @@ button, .btn-gradiente, .btn-secundario, .btn-icono-sm, .btn-rotar, .btn-bajar,
     touch-action: pan-y !important;
 }
 
-/* Pantalla completa aprovechando el ancho */
-.pantalla {
-    width: 100%;
-    max-width: 500px;
-    height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    padding: 6px 6px;
-    padding-top: max(6px, env(safe-area-inset-top));
-    padding-bottom: max(6px, env(safe-area-inset-bottom));
-    transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.oculto {
-    display: none !important;
-}
-
 /* ========================================================
-   PANTALLA 1: MENÚ PRINCIPAL
+   ESTILOS DE BOTONES Y NEÓN
    ======================================================== */
-#pantallaMenu {
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 16px;
-    background: radial-gradient(circle at center, rgba(213, 0, 249, 0.18) 0%, transparent 70%);
-}
-
-.logo-container {
-    margin-bottom: 25px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.logo-tetris {
-    font-family: var(--font-heading);
-    font-size: 3.2rem;
-    font-weight: 900;
-    letter-spacing: 4px;
-    color: var(--neon-cyan);
-    text-shadow: 0 0 15px var(--neon-cyan-glow), 0 0 30px var(--neon-cyan-glow);
-    animation: neonPulse 3s infinite alternate;
-}
-
-.logo-subtitulo {
-    font-size: 0.85rem;
-    letter-spacing: 3px;
-    color: var(--neon-purple);
-    text-transform: uppercase;
-    font-weight: 600;
-    margin-top: 4px;
-}
-
-.menu-record-box {
-    margin-bottom: 25px;
-    padding: 10px 24px;
-    background: var(--bg-card);
-    border: 1px solid var(--neon-cyan-glow);
-    border-radius: var(--radius-md);
-    box-shadow: 0 0 18px rgba(0, 229, 255, 0.18);
-}
-
-.menu-record-box span {
-    font-family: var(--font-heading);
-    color: #e2e8f0;
-    font-size: 1.1rem;
-    letter-spacing: 1px;
-}
-
-.menu-botones {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    width: 100%;
-    max-width: 280px;
-}
-
 .btn-gradiente {
     background: var(--btn-gradient);
     color: #ffffff;
-    font-family: var(--font-heading);
-    font-size: 1.05rem;
-    font-weight: 700;
-    padding: 14px 20px;
     border: none;
-    border-radius: var(--radius-md);
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(213, 0, 249, 0.35);
-    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-    letter-spacing: 1px;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    touch-action: manipulation;
+    transition: transform 0.1s, box-shadow 0.15s, filter 0.15s;
+    touch-action: none !important;
 }
 
 .btn-gradiente:hover {
-    background: var(--btn-gradient-hover);
     box-shadow: 0 6px 20px rgba(0, 229, 255, 0.45);
+    filter: brightness(1.1);
 }
 
 .btn-gradiente:active {
     transform: scale(0.96);
-    box-shadow: 0 2px 8px rgba(0, 229, 255, 0.3);
 }
 
 .btn-secundario {
-    background: rgba(30, 34, 53, 0.95);
-    color: #f1f5f9;
+    background: rgba(255, 255, 255, 0.08);
     border: 1px solid var(--bg-card-border);
-    font-family: var(--font-heading);
-    font-size: 0.92rem;
-    font-weight: 600;
-    padding: 12px 18px;
-    border-radius: var(--radius-sm);
+    color: #ffffff;
     cursor: pointer;
     transition: all 0.15s;
-    touch-action: manipulation;
+    touch-action: none !important;
 }
 
 .btn-secundario:hover {
-    border-color: var(--neon-cyan);
-    color: var(--neon-cyan);
+    background: rgba(255, 255, 255, 0.16);
 }
 
-.btn-peligro {
-    background: rgba(255, 23, 68, 0.15);
-    color: #ff5252;
-    border: 1px solid rgba(255, 23, 68, 0.4);
-    font-family: var(--font-heading);
-    font-size: 0.85rem;
-    padding: 10px 16px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: all 0.15s;
-    touch-action: manipulation;
-}
-
-.btn-peligro:hover {
-    background: rgba(255, 23, 68, 0.3);
-}
-
-.btn-instalar {
-    background: rgba(0, 229, 255, 0.12);
-    border: 1px solid var(--neon-cyan);
-    color: var(--neon-cyan);
-    font-size: 0.9rem;
-    padding: 12px 16px;
-    box-shadow: 0 0 10px rgba(0, 229, 255, 0.15);
-}
-
-.btn-instalar:hover {
-    background: rgba(0, 229, 255, 0.25);
-}
-
-/* ========================================================
-   PANTALLA 2: JUEGO ACTIVO (MAXIMIZANDO ANCHO)
-   ======================================================== */
-#pantallaJuego {
-    padding: 4px 4px;
-    gap: 4px;
-    touch-action: none;
-}
-
-/* Header compacto unificado: solo ~44px de alto para dejar TODO el espacio al tablero */
-.game-header-compact {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    height: 44px;
-    padding: 2px 6px;
-    background: var(--bg-card);
-    border: 1px solid var(--bg-card-border);
-    backdrop-filter: blur(10px);
-    border-radius: var(--radius-sm);
-    flex-shrink: 0;
-}
-
-.header-lado-izq, .header-lado-der {
-    display: flex;
-    gap: 5px;
+.btn-secundario:active {
+    transform: scale(0.96);
 }
 
 .btn-icono-sm {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid var(--bg-card-border);
     color: #ffffff;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-sm);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.15s;
     touch-action: none !important;
@@ -267,93 +132,27 @@ button, .btn-gradiente, .btn-secundario, .btn-icono-sm, .btn-rotar, .btn-bajar,
     transform: scale(0.92);
 }
 
-/* HUD Central Integrado */
-.hud-central {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+.btn-rotar {
+    background: linear-gradient(135deg, #7c3aed 0%, #d500f9 100%);
+    box-shadow: 0 4px 15px rgba(213, 0, 249, 0.35);
 }
 
-.hud-col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.btn-bajar {
+    background: linear-gradient(135deg, #0284c7 0%, #00e5ff 100%);
+    box-shadow: 0 4px 15px rgba(0, 229, 255, 0.35);
 }
 
-.hud-tag {
-    font-size: 0.6rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-}
-
-.hud-num-cyan {
-    font-family: var(--font-heading);
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--neon-cyan);
-    text-shadow: 0 0 6px var(--neon-cyan-glow);
-    line-height: 1.1;
-}
-
-.hud-num-purple {
-    font-family: var(--font-heading);
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--neon-purple);
-    text-shadow: 0 0 6px var(--neon-purple-glow);
-    line-height: 1.1;
-}
-
-.hud-siguiente-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-#siguientePiezaCanvas {
-    width: 34px;
-    height: 34px;
-    background: rgba(10, 12, 18, 0.9);
-    border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-/* Contenedor del Tablero: Ocupa el 100% del ancho y el máximo alto */
-.tablero-container {
-    flex: 1;
-    min-height: 0;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    padding: 0;
-    touch-action: none;
-}
-
+/* ========================================================
+   TABLERO Y CANVAS
+   ======================================================== */
 .tablero-wrapper {
-    height: 100%;
-    width: auto;
     aspect-ratio: 1 / 2;
-    max-width: 100%;
-    max-height: 100%;
-    background: #0d0f17;
-    border-radius: var(--radius-sm);
-    border: 2px solid rgba(0, 229, 255, 0.65);
-    box-shadow: 0 0 20px rgba(0, 229, 255, 0.25), inset 0 0 20px rgba(0, 0, 0, 0.85);
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    touch-action: none;
+    touch-action: none !important;
 }
 
 #tableroCanvas {
-    width: 100%;
-    height: 100%;
+    touch-action: none !important;
     display: block;
-    touch-action: none;
 }
 
 /* Indicadores de toque directo en pantalla */
@@ -368,272 +167,34 @@ button, .btn-gradiente, .btn-secundario, .btn-icono-sm, .btn-rotar, .btn-bajar,
     font-weight: 700;
     letter-spacing: 1px;
 }
-.touch-hint.izq { left: 6px; }
-.touch-hint.der { right: 6px; }
+.touch-hint.izq { left: 8px; }
+.touch-hint.der { right: 8px; }
 
 .drag-hint-down {
     position: absolute;
-    bottom: 4px;
+    bottom: 6px;
     left: 0;
     right: 0;
     text-align: center;
     font-size: 0.62rem;
     font-family: var(--font-heading);
-    color: rgba(0, 229, 255, 0.25);
+    color: rgba(0, 229, 255, 0.3);
     pointer-events: none;
     letter-spacing: 0.5px;
 }
 
-/* Botones de Control Inferiores (Rotar y Bajar) */
-.controles-inferiores {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    flex-shrink: 0;
-    padding-top: 2px;
-    touch-action: none;
-}
-
-.fila-botones-principales {
-    display: flex;
-    gap: 8px;
-    width: 100%;
-    touch-action: none;
-}
-
-.fila-botones-principales button {
-    flex: 1;
-    height: 48px;
-    font-size: 1.05rem;
-    border-radius: var(--radius-sm);
-    touch-action: none !important;
-}
-
-.btn-rotar {
-    background: linear-gradient(135deg, #7c3aed 0%, #d500f9 100%);
-    box-shadow: 0 4px 15px rgba(213, 0, 249, 0.35);
-}
-
-.btn-bajar {
-    background: linear-gradient(135deg, #0284c7 0%, #00e5ff 100%);
-    box-shadow: 0 4px 15px rgba(0, 229, 255, 0.35);
-}
-
 /* ========================================================
-   PANTALLA 3: LISTA DE PUNTUACIONES
+   MODAL OVERLAY Y UTILIDADES
    ======================================================== */
-#pantallaPuntuaciones {
-    align-items: center;
-    padding: 8px;
+.oculto {
+    display: none !important;
 }
 
-.score-header {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 12px;
-    padding-top: 4px;
-    flex-shrink: 0;
-}
-
-.score-titulo {
-    font-family: var(--font-heading);
-    font-size: 1.6rem;
-    color: var(--neon-cyan);
-    text-shadow: 0 0 12px var(--neon-cyan-glow);
-}
-
-.score-tabla-container {
-    width: 100%;
-    flex: 1;
-    overflow-y: auto;
-    background: var(--bg-card);
-    border: 1px solid var(--bg-card-border);
-    border-radius: var(--radius-md);
-    padding: 6px;
-    margin-bottom: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
-}
-
-.score-tabla {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-}
-
-.score-tabla th {
-    padding: 8px 6px;
-    font-family: var(--font-heading);
-    font-size: 0.74rem;
-    color: var(--neon-purple);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.score-tabla td {
-    padding: 9px 6px;
-    font-size: 0.85rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-.score-tabla tr:last-child td {
-    border-bottom: none;
-}
-
-.score-tabla .posicion {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    color: var(--neon-cyan);
-    width: 40px;
-}
-
-.score-tabla .nombre {
-    font-weight: 600;
-    color: #f1f5f9;
-}
-
-.score-tabla .puntaje {
-    font-family: var(--font-heading);
-    color: #facc15;
-    font-weight: 700;
-}
-
-.score-tabla .nivel {
-    color: var(--neon-purple);
-    font-weight: 600;
-    text-align: center;
-}
-
-.score-tabla .fecha {
-    font-size: 0.7rem;
-    color: var(--text-secondary);
-}
-
-.score-tabla .sin-datos {
-    text-align: center;
-    padding: 30px 10px;
-    color: var(--text-secondary);
-    font-style: italic;
-}
-
-.score-acciones {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    gap: 8px;
-    flex-shrink: 0;
-}
-
-/* ========================================================
-   MODALES (GAME OVER, PAUSA, GUÍA PWA)
-   ======================================================== */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100dvh;
-    background: rgba(6, 8, 15, 0.88);
-    backdrop-filter: blur(8px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    padding: 16px;
-    touch-action: none;
+    animation: fadeIn 0.2s ease-out;
 }
 
-.modal-card {
-    background: #141624;
-    border: 1px solid var(--neon-purple);
-    box-shadow: 0 0 30px var(--neon-purple-glow);
-    border-radius: var(--radius-lg);
-    width: 100%;
-    max-width: 360px;
-    padding: 24px 20px;
-    text-align: center;
-    animation: modalPop 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-
-.modal-titulo {
-    font-family: var(--font-heading);
-    font-size: 1.6rem;
-    color: var(--neon-cyan);
-    margin-bottom: 10px;
-}
-
-.modal-mensaje {
-    font-size: 1.1rem;
-    color: #e2e8f0;
-    margin-bottom: 18px;
-}
-
-.modal-guia-pwa {
-    text-align: left;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: #cbd5e1;
-    background: rgba(0, 0, 0, 0.35);
-    padding: 14px 16px;
-    border-radius: var(--radius-sm);
-    margin-bottom: 18px;
-    border-left: 3px solid var(--neon-cyan);
-}
-
-.modal-guia-pwa ol {
-    margin-left: 18px;
-}
-
-.modal-guia-pwa li {
-    margin-bottom: 6px;
-}
-
-.modal-input {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: var(--radius-sm);
-    color: #ffffff;
-    font-family: var(--font-body);
-    font-size: 1.05rem;
-    padding: 12px 14px;
-    margin-bottom: 20px;
-    outline: none;
-    transition: all 0.2s;
-    text-align: center;
-}
-
-.modal-input:focus {
-    border-color: var(--neon-cyan);
-    box-shadow: 0 0 10px var(--neon-cyan-glow);
-    background: rgba(255, 255, 255, 0.12);
-}
-
-.modal-botones {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-@keyframes neonPulse {
-    from {
-        text-shadow: 0 0 10px var(--neon-cyan-glow), 0 0 20px var(--neon-cyan-glow);
-    }
-    to {
-        text-shadow: 0 0 18px var(--neon-cyan-glow), 0 0 35px var(--neon-cyan);
-    }
-}
-
-@keyframes modalPop {
-    from {
-        opacity: 0;
-        transform: scale(0.92) translateY(12px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
