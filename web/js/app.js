@@ -190,12 +190,12 @@ class TetrisApp {
                 // Guía específica para iPhone / iPad en Safari
                 this.pwaInstrucciones.innerHTML = `
                     <p style="margin-bottom: 8px; font-weight: bold; color: var(--neon-cyan);">Cómo instalar en tu iPhone / iPad:</p>
-                    <ol>
-                        <li>Toca el botón <strong>Compartir</strong> <span style="font-size: 1.2rem;">⎋</span> (el icono del recuadro con la flecha hacia arriba en Safari).</li>
-                        <li>Baja un poco y selecciona <strong>"Añadir a la pantalla de inicio"</strong> <span style="font-size: 1.1rem;">⊞</span>.</li>
-                        <li>Toca <strong>"Añadir"</strong> en la esquina superior derecha.</li>
+                    <ol style="list-style: none; padding-left: 0; display: flex; flex-direction: column; gap: 8px;">
+                        <li>1. Pulsa el botón <strong>Compartir</strong> (icono de recuadro con flecha arriba en la barra de Safari).</li>
+                        <li>2. Desplázate hacia abajo y selecciona <strong>"Añadir a la pantalla de inicio"</strong>.</li>
+                        <li>3. Pulsa <strong>"Añadir"</strong> en la esquina superior derecha.</li>
                     </ol>
-                    <p style="margin-top: 10px; font-size: 0.85rem; color: #94a3b8;">¡Se abrirá a pantalla completa como una app nativa sin barras de navegador!</p>
+                    <p style="margin-top: 10px; font-size: 0.85rem; color: #94a3b8;">¡Se iniciará a pantalla completa como una aplicación nativa!</p>
                 `;
                 this.btnAccionInstalarPWA.classList.add('oculto');
                 this.modalPWA.classList.remove('oculto');
@@ -203,7 +203,7 @@ class TetrisApp {
                 // Navegadores de escritorio u otros
                 this.pwaInstrucciones.innerHTML = `
                     <p style="margin-bottom: 8px; font-weight: bold; color: var(--neon-cyan);">Instalar en tu dispositivo:</p>
-                    <p>Puedes instalar Tetris haciendo clic en el icono de instalación <span style="font-size: 1.1rem;">⊕</span> que aparece en la barra de direcciones de tu navegador, o desde el menú de opciones (tres puntos) seleccionando <strong>"Instalar Tetris"</strong>.</p>
+                    <p>Puedes instalar Tetris haciendo clic en el icono de instalación en la barra de direcciones de tu navegador, o desde el menú de opciones seleccionando <strong>"Instalar TetrisJACP"</strong>.</p>
                 `;
                 this.btnAccionInstalarPWA.classList.add('oculto');
                 this.modalPWA.classList.remove('oculto');
@@ -418,16 +418,30 @@ class TetrisApp {
     }
 
     actualizarBotonPausa() {
-        const iconHtml = this.estaPausado ? '<span class="icon">▶</span>' : '<span class="icon">⏸</span>';
+        const svgPlay = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+        const svgPause = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+        const iconSvg = this.estaPausado ? svgPlay : svgPause;
         const titleText = this.estaPausado ? 'Reanudar' : 'Pausar';
+        const labelText = this.estaPausado ? 'Reanudar' : 'Pausa';
 
         if (this.btnPausa) {
-            this.btnPausa.innerHTML = iconHtml;
+            this.btnPausa.innerHTML = iconSvg;
             this.btnPausa.setAttribute('title', titleText);
+            this.btnPausa.setAttribute('aria-label', titleText);
         }
         if (this.btnPausaDesk) {
-            this.btnPausaDesk.innerHTML = iconHtml;
+            const iconHolder = this.btnPausaDesk.querySelector('.icon-holder');
+            if (iconHolder) {
+                iconHolder.innerHTML = iconSvg;
+            } else {
+                this.btnPausaDesk.innerHTML = iconSvg;
+            }
+            const labelSpan = this.btnPausaDesk.querySelector('span:not(.icon-holder)');
+            if (labelSpan) {
+                labelSpan.textContent = labelText;
+            }
             this.btnPausaDesk.setAttribute('title', titleText);
+            this.btnPausaDesk.setAttribute('aria-label', titleText);
         }
     }
 
@@ -445,7 +459,7 @@ class TetrisApp {
         if (top10.length === 0) {
             this.tablaPuntuacionesBody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="sin-datos">No hay puntuaciones registradas aún. ¡Juega una partida para empezar!</td>
+                    <td colspan="5" class="sin-datos text-center py-6 text-slate-400">No hay puntuaciones registradas aún. ¡Juega una partida para empezar!</td>
                 </tr>
             `;
             return;
@@ -453,17 +467,21 @@ class TetrisApp {
 
         top10.forEach((item, index) => {
             const tr = document.createElement('tr');
-            let medalla = `${index + 1}`;
-            if (index === 0) medalla = '🥇 1';
-            else if (index === 1) medalla = '🥈 2';
-            else if (index === 2) medalla = '🥉 3';
+            let medallaHtml = `<span class="inline-flex items-center justify-center w-5 h-5 rounded text-xs font-bold text-slate-400 bg-white/5 border border-white/10">${index + 1}</span>`;
+            if (index === 0) {
+                medallaHtml = `<span class="inline-flex items-center justify-center w-6 h-6 rounded-md text-xs font-black text-slate-900 bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.6)]">1</span>`;
+            } else if (index === 1) {
+                medallaHtml = `<span class="inline-flex items-center justify-center w-6 h-6 rounded-md text-xs font-black text-slate-900 bg-slate-300 shadow-[0_0_8px_rgba(203,213,225,0.4)]">2</span>`;
+            } else if (index === 2) {
+                medallaHtml = `<span class="inline-flex items-center justify-center w-6 h-6 rounded-md text-xs font-black text-white bg-amber-700 shadow-[0_0_8px_rgba(180,83,9,0.4)]">3</span>`;
+            }
 
             tr.innerHTML = `
-                <td class="posicion">${medalla}</td>
-                <td class="nombre">${this.escaparHtml(item.nombre)}</td>
-                <td class="puntaje">${item.puntaje.toLocaleString()}</td>
-                <td class="nivel">${item.nivel}</td>
-                <td class="fecha">${item.fecha || '-'}</td>
+                <td class="posicion p-2.5">${medallaHtml}</td>
+                <td class="nombre p-2.5 font-medium">${this.escaparHtml(item.nombre)}</td>
+                <td class="puntaje p-2.5 font-['Orbitron'] font-bold text-cyan-400">${item.puntaje.toLocaleString()}</td>
+                <td class="nivel p-2.5 font-['Orbitron'] text-fuchsia-400">${item.nivel}</td>
+                <td class="fecha p-2.5 text-slate-400 text-xs">${item.fecha || '-'}</td>
             `;
             this.tablaPuntuacionesBody.appendChild(tr);
         });

@@ -63,8 +63,13 @@
                     <button id="btnScore" class="btn-gradiente w-full py-3.5 px-6 rounded-xl font-['Orbitron'] font-bold text-white text-base md:text-lg shadow-lg hover:brightness-110 active:scale-95 transition-all">
                         <span class="btn-text">Ver Puntuación</span>
                     </button>
-                    <button id="btnInstalarApp" class="btn-secundario w-full py-3 px-6 rounded-xl font-['Orbitron'] font-medium text-white/90 text-xs md:text-sm border border-white/20 bg-white/5 hover:bg-white/10 active:scale-95 transition-all">
-                        <span>📲 Instalar TetrisJACP (PWA)</span>
+                    <button id="btnInstalarApp" class="btn-secundario w-full py-3 px-6 rounded-xl font-['Orbitron'] font-medium text-white/90 text-xs md:text-sm border border-white/20 bg-white/5 hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4 text-cyan-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        <span>Instalar TetrisJACP (PWA)</span>
                     </button>
                 </div>
             </div>
@@ -76,16 +81,39 @@
             <!-- HEADER MÓVIL: Controles en los extremos, CENTRO VACÍO para respetar el Notch / Dynamic Island del iPhone -->
             <header class="game-header w-full flex items-center justify-between px-3 py-1.5 shrink-0 md:hidden">
                 <div class="flex items-center gap-2">
-                    <button id="btnVolverMenu" class="btn-icono-sm" title="Menú" aria-label="Volver al Menú">🏠</button>
-                    <button id="btnSonido" class="btn-icono-sm" title="Sonido" aria-label="Alternar Sonido">🔊</button>
+                    <button id="btnVolverMenu" class="btn-icono-sm" title="Menú" aria-label="Volver al Menú">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9 22 9 12 15 12 15 22"/>
+                        </svg>
+                    </button>
+                    <button id="btnSonido" class="btn-icono-sm" title="Sonido" aria-label="Alternar Sonido">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                        </svg>
+                    </button>
                 </div>
 
                 <!-- CENTRO 100% LIBRE: Para que la cámara o Dynamic Island jamás tape nada -->
                 <div class="flex-1 h-3 pointer-events-none"></div>
 
                 <div class="flex items-center gap-2">
-                    <button id="btnPausa" class="btn-icono-sm" title="Pausar" aria-label="Pausa">⏸</button>
-                    <button id="btnReiniciar" class="btn-icono-sm" title="Reiniciar" aria-label="Reiniciar">🔄</button>
+                    <button id="btnPausa" class="btn-icono-sm" title="Pausar" aria-label="Pausa">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="6" y="4" width="4" height="16" rx="1"/>
+                            <rect x="14" y="4" width="4" height="16" rx="1"/>
+                        </svg>
+                    </button>
+                    <button id="btnReiniciar" class="btn-icono-sm" title="Reiniciar" aria-label="Reiniciar">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                            <path d="M21 3v5h-5"/>
+                            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                            <path d="M8 16H3v5"/>
+                        </svg>
+                    </button>
                 </div>
             </header>
 
@@ -134,19 +162,42 @@
                         <!-- Fila de 4 botones de acción perfectamente distribuidos sin desborde -->
                         <div class="grid grid-cols-4 gap-2 w-full">
                             <button id="btnVolverMenuDesk" class="btn-action-desk" title="Volver al Menú" aria-label="Menú">
-                                <span class="text-base leading-none">🏠</span>
+                                <span class="icon-holder flex items-center justify-center h-4 w-4">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                        <polyline points="9 22 9 12 15 12 15 22"/>
+                                    </svg>
+                                </span>
                                 <span class="text-[0.62rem] text-slate-300 font-medium">Menú</span>
                             </button>
                             <button id="btnSonidoDesk" class="btn-action-desk" title="Sonido" aria-label="Sonido">
-                                <span class="text-base leading-none">🔊</span>
+                                <span class="icon-holder flex items-center justify-center h-4 w-4">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                                    </svg>
+                                </span>
                                 <span class="text-[0.62rem] text-slate-300 font-medium">Audio</span>
                             </button>
                             <button id="btnPausaDesk" class="btn-action-desk" title="Pausar" aria-label="Pausa">
-                                <span class="text-base leading-none">⏸</span>
+                                <span class="icon-holder flex items-center justify-center h-4 w-4">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                        <rect x="6" y="4" width="4" height="16" rx="1"/>
+                                        <rect x="14" y="4" width="4" height="16" rx="1"/>
+                                    </svg>
+                                </span>
                                 <span class="text-[0.62rem] text-slate-300 font-medium">Pausa</span>
                             </button>
                             <button id="btnReiniciarDesk" class="btn-action-desk" title="Reiniciar" aria-label="Reiniciar">
-                                <span class="text-base leading-none">🔄</span>
+                                <span class="icon-holder flex items-center justify-center h-4 w-4">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                                        <path d="M21 3v5h-5"/>
+                                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                                        <path d="M8 16H3v5"/>
+                                    </svg>
+                                </span>
                                 <span class="text-[0.62rem] text-slate-300 font-medium">Reset</span>
                             </button>
                         </div>
@@ -189,10 +240,18 @@
                 <div class="controles-inferiores w-full pt-1 shrink-0 md:hidden">
                     <div class="fila-botones-principales flex gap-2.5 w-full">
                         <button id="btnRotar" class="btn-gradiente btn-rotar flex-1 h-12 rounded-xl font-['Orbitron'] font-bold text-white flex items-center justify-center gap-2 active:scale-95 shadow-lg" aria-label="Rotar pieza">
-                            <span>🔄 Rotar</span>
+                            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+                                <polyline points="21 3 21 8 16 8"/>
+                            </svg>
+                            <span class="tracking-wider">ROTAR</span>
                         </button>
                         <button id="btnBajar" class="btn-gradiente btn-bajar flex-1 h-12 rounded-xl font-['Orbitron'] font-bold text-white flex items-center justify-center gap-2 active:scale-95 shadow-lg" aria-label="Caída rápida instantánea">
-                            <span>⚡ Bajar</span>
+                            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="7 6 12 11 17 6"/>
+                                <polyline points="7 13 12 18 17 13"/>
+                            </svg>
+                            <span class="tracking-wider">BAJAR</span>
                         </button>
                     </div>
                 </div>
